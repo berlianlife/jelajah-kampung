@@ -80,6 +80,9 @@ func _run() -> void:
 	await goto(Vector3(-15.3, 0, -15.0))
 	check(near_id() == "", "tomatoes not pickable before quest")
 
+	var j0: Array = main.engine.journal_data()
+	check(j0[0]["status"] == "Belum dimulai" and j0[1]["status"] == "Terkunci", "journal initial statuses")
+
 	# --- main quest ---
 	await goto(Vector3(-8.3, 0, 14.0))
 	check(near_id() == "aminah", "Bu Aminah is interactable")
@@ -96,6 +99,7 @@ func _run() -> void:
 	main._on_action()
 	check(gd.quest("q.help_neighbor") == 2 and gd.has_item("rantang"), "rantang picked -> state 2")
 	check(not main.rantang.visible, "rantang hidden on table")
+	check(main.inventory_view().size() == 1 and main.inventory_view()[0]["name"] == "Rantang Lodeh", "hotbar shows Rantang Lodeh")
 	await goto(Vector3(8.6, 0, 14.0))
 	check(near_id() == "hasan", "Pak Hasan interactable")
 	main._on_action()
@@ -129,6 +133,8 @@ func _run() -> void:
 			picked += 1
 	check(picked == 5, "exactly 5 tomatoes pickable (picked=%d)" % picked)
 	check(gd.counter("q.harvest_tomato") == 5, "counter = 5")
+	var inv: Array = main.inventory_view()
+	check(inv.size() == 1 and inv[0]["id"] == "tomat" and int(inv[0]["count"]) == 5, "hotbar shows Tomat x5")
 	check(gd.state["hidden"].has("tomato_0") and not gd.state["hidden"].has("tomato_5"), "picked tomatoes hidden, 6th untouched")
 	var panel: Array = main.engine.panel_data()
 	check(panel.size() == 2 and panel[1]["steps"][0]["text"].contains("5/5"), "quest panel shows 5/5")
@@ -151,6 +157,15 @@ func _run() -> void:
 	player.position = Vector3(-10, 0, 1)
 	await frames(60)
 	check(WorldBuilder.fade_targets[1].cur > 0.99, "house in front but not hiding player stays solid")
+
+	# --- journal ---
+	var j: Array = main.engine.journal_data()
+	check(j.size() == 2 and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai", "journal: both quests Selesai")
+	check(j[0]["lessons"][0]["unlocked"] and j[0]["lessons"][0]["title"] == "Adab Bertetangga", "journal: lesson unlocked")
+	check(main.inventory_view().is_empty(), "inventory empty after handing in items")
+	hud.toggle_journal()
+	check(hud.is_blocking() and hud.journal_text.text.contains("Menjaga Kebun Bersama"), "journal panel opens with lessons")
+	hud.toggle_journal()
 
 	# --- settings ---
 	hud.toggle_settings()

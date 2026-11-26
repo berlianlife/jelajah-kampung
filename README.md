@@ -5,7 +5,7 @@ Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (P
 **Target MVP awal: localhost.** VPS/domain belum dipakai.
 
 ## Status
-- Diuji dengan Godot 4.3 headless: **39/39 smoke test lulus** (movement, collision, pagar & pintu kebun, 2 quest penuh, kartu pelajaran, fade bangunan, pengaturan, audio bus, save/load).
+- Diuji dengan Godot 4.3 headless: **smoke test lulus semua** (movement, collision, pagar & pintu kebun, 2 quest penuh, kartu pelajaran, fade bangunan, pengaturan, audio bus, save/load).
 - Web build siap pakai ada di `export/web/` (Thread Support OFF).
 - Belum diuji visual di layar asli dan di HP.
 - Konten Islam di `data/` berstatus `draft_pending_review`. Jangan publish sebelum reviewer menyetujui.
@@ -57,6 +57,6 @@ export_presets.cfg               # preset Web (Thread Support OFF)
 Alur data: `Gameplay → GameData → SaveRepository → LocalSaveRepository`. Nanti tambah repository server tanpa mengubah gameplay.
 
 ## Known issues / next
-- Belum ada voice-over NPC (bus Voice sudah siap), minimap, jurnal, inventaris visual.
+- Belum ada voice-over NPC (bus Voice sudah siap) dan minimap. Jurnal (J) dan hotbar inventaris sudah ada.
 - Rumah belum bisa dimasuki.
 - Menambah quest: buat `data/quests/03_xxx.json`, daftarkan di `QUEST_FILES` (main.gd) dan `include_filter` export.

@@ -118,6 +118,35 @@ func apply(fx: Dictionary, q: Dictionary, instance_key := "") -> void:
 		GameData.save()
 		changed.emit()
 
+func _collect_learns(v: Variant, out: Dictionary) -> void:
+	if v is Dictionary:
+		if v.has("learn"):
+			out[v["learn"]] = {"title": v.get("learn_title", ""), "text": v.get("learn_text", "")}
+		for k in v.keys():
+			_collect_learns(v[k], out)
+	elif v is Array:
+		for x in v:
+			_collect_learns(x, out)
+
+## Journal rows: every quest whose requirements are met, with status and its learning entry.
+func journal_data() -> Array:
+	var out: Array = []
+	for q in quests:
+		var st := GameData.quest(q["quest_id"])
+		var steps: Array = q.get("steps", [])
+		var done := not steps.is_empty()
+		for s in steps:
+			if not cond_ok(s.get("done_if", {}), q):
+				done = false
+		var status := "Selesai" if done else ("Berjalan" if st > 0 else ("Terkunci" if not requires_ok(q) else "Belum dimulai"))
+		var learns := {}
+		_collect_learns(q, learns)
+		var lessons: Array = []
+		for id in learns.keys():
+			lessons.append({"id": id, "title": learns[id]["title"], "text": learns[id]["text"], "unlocked": GameData.state["learned"].has(id)})
+		out.append({"title": q.get("title", ""), "type": q.get("type", "main"), "status": status, "lessons": lessons, "content_status": q.get("content_status", "")})
+	return out
+
 ## Quest panel rows: main quests always, side quests once started.
 func panel_data() -> Array:
 	var out: Array = []

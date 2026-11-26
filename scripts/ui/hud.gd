@@ -6,6 +6,7 @@ signal action_pressed
 signal joystick_changed(v: Vector2)
 signal settings_changed(s: Dictionary)
 signal reset_requested
+signal journal_opened
 
 const CREAM := Color("fffaf0")
 const WOOD := Color("7a4b2a")
@@ -28,6 +29,9 @@ var learn_panel: PanelContainer
 var learn_title: Label
 var learn_text: Label
 var settings_panel: PanelContainer
+var journal_panel: PanelContainer
+var journal_text: RichTextLabel
+var hotbar: HBoxContainer
 var s_ortho: CheckButton
 var s_pitch: HSlider
 var s_dist: HSlider
@@ -153,16 +157,68 @@ func _ready() -> void:
 	quest_text.add_theme_color_override("default_color", INK)
 	qp.add_child(quest_text)
 
-	# Settings button (top-right)
+	# Top-right buttons
+	var tr := HBoxContainer.new()
+	tr.add_theme_constant_override("separation", 8)
+	tr.anchor_left = 1.0
+	tr.anchor_right = 1.0
+	tr.offset_left = -270
+	tr.offset_right = -12
+	tr.offset_top = 12
+	tr.alignment = BoxContainer.ALIGNMENT_END
+	tr.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	root.add_child(tr)
+	var jb := _button("Jurnal (J)")
+	jb.pressed.connect(toggle_journal)
+	tr.add_child(jb)
 	var gear := _button("Pengaturan")
-	gear.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	gear.position = Vector2(-150, 12)
 	gear.pressed.connect(toggle_settings)
-	root.add_child(gear)
+	tr.add_child(gear)
+
+	# Inventory hotbar (bottom-center)
+	var hp := _panel(Color("fffaf0"), WOOD, 12)
+	_anchor_bottom_center(hp, 300, 64, 16)
+	root.add_child(hp)
+	hotbar = HBoxContainer.new()
+	hotbar.alignment = BoxContainer.ALIGNMENT_CENTER
+	hotbar.add_theme_constant_override("separation", 6)
+	hp.add_child(hotbar)
+	hp.name = "Hotbar"
+	set_inventory([])
+
+	# Journal
+	journal_panel = _panel(CREAM, WOOD)
+	_center(journal_panel, 520, 480)
+	root.add_child(journal_panel)
+	var jv := VBoxContainer.new()
+	jv.add_theme_constant_override("separation", 8)
+	journal_panel.add_child(jv)
+	var jh := HBoxContainer.new()
+	var jt := _label("Jurnal", 22, DEEP)
+	jt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	jh.add_child(jt)
+	var jc := _button("Tutup", true)
+	jc.pressed.connect(toggle_journal)
+	jh.add_child(jc)
+	jv.add_child(jh)
+	var js := ScrollContainer.new()
+	js.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	js.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	jv.add_child(js)
+	journal_text = RichTextLabel.new()
+	journal_text.bbcode_enabled = true
+	journal_text.fit_content = true
+	journal_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	journal_text.add_theme_font_size_override("normal_font_size", 15)
+	journal_text.add_theme_font_size_override("bold_font_size", 17)
+	journal_text.add_theme_color_override("default_color", INK)
+	js.add_child(journal_text)
+	jv.add_child(_label("Materi Islam di game ini masih draf dan harus disetujui reviewer sebelum publish.", 12, Color("7a6a4c")))
+	journal_panel.visible = false
 
 	# Prompt
 	prompt_panel = _panel(DEEP, Color("22A061"), 24)
-	_anchor_bottom_center(prompt_panel, 380, 50, 90)
+	_anchor_bottom_center(prompt_panel, 380, 50, 96)
 	root.add_child(prompt_panel)
 	prompt_label = _label("", 16, Color.WHITE)
 	prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -276,6 +332,10 @@ func _process(delta: float) -> void:
 			toast_panel.visible = false
 
 func _unhandled_input(e: InputEvent) -> void:
+	if e.is_action_pressed("journal") and not _open:
+		toggle_journal()
+		get_viewport().set_input_as_handled()
+		return
 	if e.is_action_pressed("settings"):
 		if learn_panel.visible:
 			close_learn()
@@ -285,7 +345,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 # ---------- public API ----------
 func is_blocking() -> bool:
-	return _open or learn_panel.visible or settings_panel.visible
+	return _open or learn_panel.visible or settings_panel.visible or journal_panel.visible
 
 func dialog_open() -> bool:
 	return _open
@@ -301,12 +361,12 @@ func set_quests(rows: Array) -> void:
 		var current_marked := false
 		for s in q["steps"]:
 			if s["done"]:
-				out += "[color=#8a7a5c][s]✓ %s[/s][/color]\n" % s["text"]
+				out += "[color=#8a7a5c][s]· %s[/s][/color]\n" % s["text"]
 			elif not current_marked:
-				out += "[color=#0F5132]▶ %s[/color]\n" % s["text"]
+				out += "[color=#0F5132][b]» %s[/b][/color]\n" % s["text"]
 				current_marked = true
 			else:
-				out += "○ %s\n" % s["text"]
+				out += "· %s\n" % s["text"]
 	quest_text.text = out.strip_edges()
 
 func set_stickers(n: int) -> void:
@@ -329,7 +389,63 @@ func show_learn(title: String, text: String) -> void:
 func close_learn() -> void:
 	learn_panel.visible = false
 
+func toggle_journal() -> void:
+	settings_panel.visible = false
+	journal_panel.visible = not journal_panel.visible
+	if journal_panel.visible:
+		journal_opened.emit()
+
+func set_journal(rows: Array) -> void:
+	var out := ""
+	for q in rows:
+		var tag := "Misi Utama" if q["type"] == "main" else "Misi Sampingan"
+		var col := "#1e7a4f" if q["status"] == "Selesai" else ("#b07a00" if q["status"] == "Berjalan" else "#8a7a5c")
+		out += "[b]%s[/b]  [color=%s]%s[/color]\n[color=#7a6a4c]%s[/color]\n" % [q["title"], col, q["status"], tag]
+		for l in q["lessons"]:
+			if l["unlocked"]:
+				out += "  [color=#7a4b2a][b]Pelajaran: %s[/b][/color] [color=#7a4b00](draf)[/color]\n  %s\n" % [l["title"], l["text"]]
+			else:
+				out += "  [color=#a09070]Pelajaran terkunci: selesaikan misi ini.[/color]\n"
+		out += "\n"
+	journal_text.text = out.strip_edges()
+
+## items: [{name, short, color, count}]
+func set_inventory(items: Array) -> void:
+	for ch in hotbar.get_children():
+		ch.queue_free()
+	for i in 5:
+		var slot := PanelContainer.new()
+		slot.custom_minimum_size = Vector2(50, 46)
+		var has := i < items.size()
+		var st := _style(Color("fff2d6") if has else Color("f3e3c3"), SUN if has else Color("cfae79"), 8)
+		st.set_content_margin_all(2)
+		slot.add_theme_stylebox_override("panel", st)
+		var v := VBoxContainer.new()
+		v.alignment = BoxContainer.ALIGNMENT_CENTER
+		v.add_theme_constant_override("separation", 0)
+		slot.add_child(v)
+		if has:
+			var it: Dictionary = items[i]
+			var dot := ColorRect.new()
+			dot.color = Color(str(it.get("color", "888888")))
+			dot.custom_minimum_size = Vector2(18, 14)
+			dot.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			v.add_child(dot)
+			var txt := str(it.get("short", ""))
+			if int(it.get("count", 0)) > 1:
+				txt += " x%d" % int(it["count"])
+			var l := _label(txt, 11, INK)
+			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			v.add_child(l)
+			slot.tooltip_text = str(it.get("name", ""))
+		else:
+			var l := _label(str(i + 1), 11, Color("9c8257"))
+			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			v.add_child(l)
+		hotbar.add_child(slot)
+
 func toggle_settings() -> void:
+	journal_panel.visible = false
 	settings_panel.visible = not settings_panel.visible
 	reset_armed = false
 	s_reset.text = "Ulang dari awal"

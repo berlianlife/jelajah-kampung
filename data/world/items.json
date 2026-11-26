@@ -1,0 +1,6 @@
+{
+  "items": {
+    "rantang": {"name": "Rantang Lodeh", "color": "2fa36b", "short": "Rantang"},
+    "tomat": {"name": "Tomat", "color": "e2463a", "short": "Tomat", "count_from": "q.harvest_tomato"}
+  }
+}

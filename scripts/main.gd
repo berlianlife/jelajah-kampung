@@ -6,6 +6,7 @@ const QUEST_FILES := [
 	"res://data/quests/02_harvest_tomato.json",
 ]
 const NPC_FILE := "res://data/world/npcs.json"
+const ITEM_FILE := "res://data/world/items.json"
 const INTERACT_RANGE := 2.1
 
 const PlayerScript := preload("res://scripts/player/player.gd")
@@ -18,6 +19,7 @@ var rig
 var hud
 var engine: QuestEngine
 var npc_data: Dictionary = {}
+var item_data: Dictionary = {}
 var interactables: Array = []
 var near = null
 var rantang: Node3D
@@ -57,6 +59,8 @@ func _ready() -> void:
 	engine.sfx_requested.connect(AudioManager.play)
 
 	npc_data = _load_json(NPC_FILE)
+	item_data = _load_json(ITEM_FILE).get("items", {})
+	hud.journal_opened.connect(_refresh_ui)
 	_spawn_interactables(world)
 
 	hud.load_settings(GameData.state["settings"])
@@ -147,7 +151,7 @@ func _hide_instance(key: String) -> void:
 func _process(delta: float) -> void:
 	var blocked: bool = hud.is_blocking()
 	player.input_locked = blocked
-	WorldBuilder.update_fades(player.global_position, delta, rig.pitch_deg)
+	WorldBuilder.update_fades(player.global_position, delta, rig.cam.global_position)
 	near = null if blocked else _find_near()
 	hud.set_prompt(near.prompt_label if near != null else "")
 	if player.is_moving:
@@ -255,6 +259,18 @@ func _on_reset() -> void:
 func _refresh_ui() -> void:
 	hud.set_quests(engine.panel_data())
 	hud.set_stickers(int(GameData.state["stickers"]))
+	hud.set_inventory(inventory_view())
+	hud.set_journal(engine.journal_data())
+
+func inventory_view() -> Array:
+	var out: Array = []
+	for id in GameData.state["inventory"]:
+		var def: Dictionary = item_data.get(id, {"name": id, "short": id, "color": "888888"})
+		var row := def.duplicate()
+		row["id"] = id
+		row["count"] = GameData.counter(def["count_from"]) if def.has("count_from") else 1
+		out.append(row)
+	return out
 
 func _load_json(path: String) -> Dictionary:
 	var f := FileAccess.open(path, FileAccess.READ)

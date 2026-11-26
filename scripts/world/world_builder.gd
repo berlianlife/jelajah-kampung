@@ -86,14 +86,33 @@ static func house(parent: Node3D, x: float, z: float, w: float, d: float, wall: 
 	_collect_unique_mats(g, mats)
 	fade_targets.append({"mats": mats, "min_x": x - w / 2.0, "max_x": x + w / 2.0, "min_z": z - d / 2.0, "max_z": z + d / 2.0, "cur": 1.0})
 
-## Call every frame with the player position.
-## A house hides the player when the camera ray to the player passes under its roof top (~4.6 m).
-static func update_fades(p: Vector3, delta: float, pitch_deg := 60.0) -> void:
-	var slope := tan(deg_to_rad(pitch_deg))
+## Segment vs axis-aligned box (slab test). True when a..b passes through the box.
+static func _segment_hits_box(a: Vector3, b: Vector3, bmin: Vector3, bmax: Vector3) -> bool:
+	var d := b - a
+	var t0 := 0.0
+	var t1 := 1.0
+	for i in 3:
+		if absf(d[i]) < 1e-6:
+			if a[i] < bmin[i] or a[i] > bmax[i]:
+				return false
+		else:
+			var ta := (bmin[i] - a[i]) / d[i]
+			var tb := (bmax[i] - a[i]) / d[i]
+			t0 = maxf(t0, minf(ta, tb))
+			t1 = minf(t1, maxf(ta, tb))
+			if t0 > t1:
+				return false
+	return true
+
+## Call every frame. A house fades only when it actually blocks the camera's line of sight
+## to the player (works for any pitch, distance or projection).
+static func update_fades(p: Vector3, delta: float, cam_pos: Vector3) -> void:
+	var head := p + Vector3(0, 1.3, 0)
+	var body := p + Vector3(0, 0.7, 0)
 	for b in fade_targets:
-		var in_x: bool = p.x > b.min_x - 0.6 and p.x < b.max_x + 0.6
-		var gap := maxf(0.0, float(b.min_z) - p.z)
-		var occ: bool = in_x and p.z < b.max_z and gap * slope < 4.6
+		var bmin := Vector3(b.min_x - 0.15, 0.0, b.min_z - 0.15)
+		var bmax := Vector3(b.max_x + 0.15, 4.0, b.max_z + 0.15)
+		var occ: bool = _segment_hits_box(head, cam_pos, bmin, bmax) or _segment_hits_box(body, cam_pos, bmin, bmax)
 		var goal := 0.3 if occ else 1.0
 		var cur: float = b.cur
 		if absf(cur - goal) < 0.002:

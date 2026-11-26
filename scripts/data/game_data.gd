@@ -74,6 +74,7 @@ func _setup_input() -> void:
 		"move_right": [KEY_D, KEY_RIGHT],
 		"interact": [KEY_E, KEY_SPACE],
 		"settings": [KEY_ESCAPE],
+		"journal": [KEY_J],
 	}
 	for action in map.keys():
 		if not InputMap.has_action(action):
