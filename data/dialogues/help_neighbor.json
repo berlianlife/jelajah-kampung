@@ -1,0 +1,64 @@
+{
+  "quest_id": "q.help_neighbor",
+  "title": "Membantu Tetangga",
+  "content_status": "draft_pending_review",
+  "learning_objective": "Adab bertetangga, tolong-menolong, berbagi",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    "Temui Bu Aminah di rumahnya",
+    "Ambil rantang di meja depan rumah Bu Aminah",
+    "Antarkan ke rumah Pak Hasan (atap biru)"
+  ],
+  "npcs_spawn": [
+    {"id": "aminah", "name": "Bu Aminah", "prompt": "Bicara dengan Bu Aminah", "x": -8.3, "z": 12.6, "look": {"robe": "7B61FF", "dress": true, "hijab": "5d47d6"}},
+    {"id": "hasan", "name": "Pak Hasan", "prompt": "Bicara dengan Pak Hasan", "x": 8.6, "z": 12.4, "look": {"robe": "d9cdb3", "pants": "4b5a6a", "peci": "2b2418"}},
+    {"id": "ustadz", "name": "Ustadz Ali", "prompt": "Bicara dengan Ustadz Ali", "x": 2.2, "z": -9.2, "look": {"robe": "ffffff", "pants": "ffffff", "cap": "ffffff"}}
+  ],
+  "npcs": {
+    "aminah": {
+      "0": {
+        "lines": [
+          {"who": "Bu Aminah", "text": "Assalamu'alaikum, Ahmad!"},
+          {"who": "Ahmad", "text": "Wa'alaikumussalam warahmatullah, Bu Aminah."},
+          {"who": "Bu Aminah", "text": "Ibu baru masak sayur lodeh. Pak Hasan, tetangga kita di seberang jalan, sedang kurang sehat."},
+          {"who": "Bu Aminah", "text": "Ahmad mau bantu Ibu mengantarkan rantang untuk Pak Hasan?"}
+        ],
+        "choices": [
+          {"label": "Baik, Bu! Ahmad bantu.", "set_state": 1, "toast": "Misi diterima: Membantu Tetangga",
+           "reply": [{"who": "Bu Aminah", "text": "Terima kasih, Nak. Rantangnya ada di meja depan rumah Ibu, sebelah kiri."}]},
+          {"label": "Nanti dulu, Bu.",
+           "reply": [{"who": "Bu Aminah", "text": "Iya, tidak apa-apa. Kalau sudah siap, temui Ibu lagi, ya."}]}
+        ]
+      },
+      "1": {"lines": [{"who": "Bu Aminah", "text": "Rantangnya di meja depan rumah Ibu. Hati-hati membawanya, ya."}]},
+      "2": {"lines": [{"who": "Bu Aminah", "text": "Rumah Pak Hasan yang atapnya biru, di seberang jalan."}]},
+      "3": {"lines": [{"who": "Bu Aminah", "text": "Sudah diantar? Terima kasih, Ahmad. Membantu tetangga itu perbuatan baik."}]}
+    },
+    "hasan": {
+      "2": {
+        "lines": [
+          {"who": "Ahmad", "text": "Assalamu'alaikum, Pak Hasan. Ini ada titipan dari Bu Aminah."},
+          {"who": "Pak Hasan", "text": "Wa'alaikumussalam. Masya Allah, terima kasih, Ahmad."},
+          {"who": "Pak Hasan", "text": "Sampaikan terima kasih Bapak untuk Bu Aminah, ya. Jazakumullahu khairan."}
+        ],
+        "set_state": 3, "remove_item": "rantang", "add_sticker": 1, "learn": "adab.tetangga",
+        "toast": "Misi selesai! +1 Stiker Kebaikan"
+      },
+      "3": {"lines": [{"who": "Pak Hasan", "text": "Lodehnya enak sekali. Terima kasih lagi, Ahmad."}]},
+      "default": {"lines": [{"who": "Pak Hasan", "text": "Assalamu'alaikum, Ahmad. Bapak istirahat di teras saja hari ini."}]}
+    },
+    "ustadz": {
+      "default": {"lines": [
+        {"who": "Ustadz Ali", "text": "Assalamu'alaikum, Ahmad. Masjid kita sedang disiapkan untuk kegiatan belajar."},
+        {"who": "Ustadz Ali", "text": "Nanti kita belajar wudhu dan shalat bersama, insya Allah."}
+      ]}
+    }
+  },
+  "items": {
+    "table": {
+      "1": {"set_state": 2, "give_item": "rantang", "toast": "Rantang Lodeh masuk inventaris"}
+    }
+  }
+}
