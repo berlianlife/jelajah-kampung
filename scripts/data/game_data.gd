@@ -10,15 +10,25 @@ func _ready() -> void:
 	state = default_state()
 	var loaded := repo.load_state()
 	for k in loaded.keys():
-		state[k] = loaded[k]
+		if k == "settings" and loaded[k] is Dictionary:
+			for sk in loaded[k].keys():
+				state["settings"][sk] = loaded[k][sk]
+		else:
+			state[k] = loaded[k]
+
+func default_settings() -> Dictionary:
+	return {"ortho": false, "pitch": 60.0, "distance": 24.0, "vol_voice": 1.0, "vol_amb": 0.4, "vol_sfx": 0.7}
 
 func default_state() -> Dictionary:
 	return {
-		"quests": {"q.help_neighbor": 0},
+		"quests": {},
+		"counters": {},
 		"inventory": [],
+		"hidden": [],
 		"stickers": 0,
 		"learned": [],
 		"player": {"x": -10.0, "z": 1.0},
+		"settings": default_settings(),
 	}
 
 func quest(id: String) -> int:
@@ -26,7 +36,14 @@ func quest(id: String) -> int:
 
 func set_quest(id: String, value: int) -> void:
 	state["quests"][id] = value
-	save()
+
+func counter(id: String) -> int:
+	return int(state.get("counters", {}).get(id, 0))
+
+func add_counter(id: String, n: int) -> void:
+	if not state.has("counters"):
+		state["counters"] = {}
+	state["counters"][id] = counter(id) + n
 
 func has_item(id: String) -> bool:
 	return state["inventory"].has(id)
@@ -41,9 +58,13 @@ func remove_item(id: String) -> void:
 func save() -> void:
 	repo.save_state(state)
 
+## Clears progress but keeps the player's settings.
 func reset() -> void:
+	var keep: Dictionary = state.get("settings", default_settings()).duplicate()
 	repo.clear()
 	state = default_state()
+	state["settings"] = keep
+	save()
 
 func _setup_input() -> void:
 	var map := {
@@ -52,6 +73,7 @@ func _setup_input() -> void:
 		"move_left": [KEY_A, KEY_LEFT],
 		"move_right": [KEY_D, KEY_RIGHT],
 		"interact": [KEY_E, KEY_SPACE],
+		"settings": [KEY_ESCAPE],
 	}
 	for action in map.keys():
 		if not InputMap.has_action(action):

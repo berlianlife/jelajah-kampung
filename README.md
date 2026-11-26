@@ -1,11 +1,11 @@
 # Jelajah-Kampung — Godot 4 (Phase 1)
 
-Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung blockout, 3 NPC, quest **Membantu Tetangga** berbasis data JSON.
+Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama) dan **Panen Tomat** (sampingan), kartu pelajaran, menu Pengaturan (kamera + volume Suara NPC/Suasana/Efek), SFX prosedural tanpa musik.
 
 **Target MVP awal: localhost.** VPS/domain belum dipakai.
 
 ## Status
-- Diuji dengan Godot 4.3 headless: **18/18 smoke test lulus** (movement, snap 8 arah, collision, batas peta, quest penuh, fade bangunan, save/load).
+- Diuji dengan Godot 4.3 headless: **39/39 smoke test lulus** (movement, collision, pagar & pintu kebun, 2 quest penuh, kartu pelajaran, fade bangunan, pengaturan, audio bus, save/load).
 - Web build siap pakai ada di `export/web/` (Thread Support OFF).
 - Belum diuji visual di layar asli dan di HP.
 - Konten Islam di `data/` berstatus `draft_pending_review`. Jangan publish sebelum reviewer menyetujui.
@@ -15,7 +15,7 @@ Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (P
 2. Godot → Import → pilih `project.godot`.
 3. Tekan F5.
 
-Kontrol: WASD/panah jalan, E/Spasi bicara/ambil. Di layar sentuh muncul joystick dan tombol Aksi.
+Kontrol: WASD/panah jalan, E/Spasi bicara/ambil, Esc pengaturan. Di layar sentuh muncul joystick dan tombol Aksi.
 
 ## Jalankan di browser (localhost) — paling cepat
 Build sudah ada: `python3 tools/serve_web.py` → buka http://localhost:8060
@@ -45,7 +45,10 @@ scripts/world/world_builder.gd   # blockout kampung
 scripts/world/interactable.gd    # NPC & objek
 scripts/ui/hud.gd                # quest, prompt, dialog, toast, touch
 scripts/ui/virtual_joystick.gd
-data/dialogues/help_neighbor.json  # dialog, langkah, efek quest
+data/quests/*.json               # quest: langkah, dialog, kondisi, efek (draf, perlu review)
+data/world/npcs.json             # spawn NPC + dialog idle
+scripts/quest/quest_engine.gd    # runner quest data-driven
+scripts/audio/audio_manager.gd   # autoload: bus Voice/Ambience/SFX, SFX sintetis
 tools/serve_web.py               # server localhost untuk Web export
 tests/smoke_test.gd              # godot --headless --path . -s res://tests/smoke_test.gd
 export_presets.cfg               # preset Web (Thread Support OFF)
@@ -54,5 +57,6 @@ export_presets.cfg               # preset Web (Thread Support OFF)
 Alur data: `Gameplay → GameData → SaveRepository → LocalSaveRepository`. Nanti tambah repository server tanpa mengubah gameplay.
 
 ## Known issues / next
-- Belum ada menu pengaturan kamera/suara in-game (atur via @export di camera_rig.gd).
-- Belum ada audio (SFX/voice-over), minimap, jurnal, misi Panen Tomat.
+- Belum ada voice-over NPC (bus Voice sudah siap), minimap, jurnal, inventaris visual.
+- Rumah belum bisa dimasuki.
+- Menambah quest: buat `data/quests/03_xxx.json`, daftarkan di `QUEST_FILES` (main.gd) dan `include_filter` export.

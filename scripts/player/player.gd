@@ -7,6 +7,7 @@ extends CharacterBody3D
 var model: Node3D
 var input_locked := false
 var joystick_vector := Vector2.ZERO
+var is_moving := false
 
 func _ready() -> void:
 	motion_mode = CharacterBody3D.MOTION_MODE_FLOATING
@@ -40,6 +41,7 @@ func _physics_process(delta: float) -> void:
 	position.y = 0.0
 
 	var moving := v != Vector2.ZERO
+	is_moving = moving
 	if moving:
 		model.rotation.y = lerp_angle(model.rotation.y, atan2(v.x, v.y), 0.25)
 	CharacterMesh.animate(model, delta, moving)

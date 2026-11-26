@@ -138,6 +138,50 @@ static func mosque(parent: Node3D, x: float, z: float) -> void:
 	mesh_at(parent, cyl_mesh(1.0, 1.0, 0.3, 10), "1e7a4f", Vector3(x + 6.4, 6.4, z - 2.6))
 	solid_cylinder(parent, 1.0, 8.0, Vector3(x + 6.4, 0, z - 2.6))
 
+## Fenced garden (x -16.4..-8.6, z -17.4..-11.6) with a gate on the south side (x -13.2..-11.8).
+static func garden(parent: Node3D) -> void:
+	var fence := "a8743f"
+	# solid fence lines (thin colliders)
+	box(parent, Vector3(7.8, 0.1, 0.1), Vector3(-12.5, 0.5, -17.4), fence, false)
+	_wall(parent, Vector3(7.8, 1.2, 0.3), Vector3(-12.5, 0.6, -17.4))
+	_wall(parent, Vector3(0.3, 1.2, 5.8), Vector3(-16.4, 0.6, -14.5))
+	_wall(parent, Vector3(0.3, 1.2, 5.8), Vector3(-8.6, 0.6, -14.5))
+	_wall(parent, Vector3(3.2, 1.2, 0.3), Vector3(-14.8, 0.6, -11.6))
+	_wall(parent, Vector3(3.2, 1.2, 0.3), Vector3(-10.2, 0.6, -11.6))
+	box(parent, Vector3(0.1, 0.1, 5.8), Vector3(-16.4, 0.5, -14.5), fence)
+	box(parent, Vector3(0.1, 0.1, 5.8), Vector3(-8.6, 0.5, -14.5), fence)
+	box(parent, Vector3(3.2, 0.1, 0.1), Vector3(-14.8, 0.5, -11.6), fence)
+	box(parent, Vector3(3.2, 0.1, 0.1), Vector3(-10.2, 0.5, -11.6), fence)
+	var x := -16.4
+	while x <= -8.5:
+		box(parent, Vector3(0.15, 0.7, 0.15), Vector3(x, 0.35, -17.4), fence)
+		if absf(x + 12.5) > 0.3:
+			box(parent, Vector3(0.15, 0.7, 0.15), Vector3(x, 0.35, -11.6), fence)
+		x += 1.3
+	box(parent, Vector3(0.15, 1.1, 0.15), Vector3(-13.2, 0.55, -11.6), fence)
+	box(parent, Vector3(0.15, 1.1, 0.15), Vector3(-11.8, 0.55, -11.6), fence)
+	# soil rows + plants (walkable)
+	for r in 3:
+		var z := -16.2 + r * 1.8
+		box(parent, Vector3(7, 0.25, 1), Vector3(-12.5, 0.12, z), "7a5233")
+		for i in 6:
+			var leaf := SphereMesh.new()
+			leaf.radius = 0.38
+			leaf.height = 0.7
+			leaf.radial_segments = 5
+			leaf.rings = 2
+			mesh_at(parent, leaf, "5fae3b" if r == 1 else "3f9a3a", Vector3(-15.5 + i * 1.2, 0.55, z))
+
+static func _wall(parent: Node3D, size: Vector3, pos: Vector3) -> void:
+	var body := StaticBody3D.new()
+	body.position = pos
+	parent.add_child(body)
+	var cs := CollisionShape3D.new()
+	var sh := BoxShape3D.new()
+	sh.size = size
+	cs.shape = sh
+	body.add_child(cs)
+
 static func bounds(parent: Node3D) -> void:
 	var h := HALF
 	for spec in [
@@ -177,7 +221,7 @@ static func build_kampung(world: Node3D) -> void:
 	# market stall + garden blockout
 	box(world, Vector3(4, 0.9, 1.2), Vector3(11, 0.45, -5.4), "a8743f", true)
 	box(world, Vector3(4.2, 0.12, 2.4), Vector3(11, 2.45, -6), "d9473a")
-	box(world, Vector3(7, 0.25, 5), Vector3(-12.5, 0.12, -14.5), "7a5233")
+	garden(world)
 	# pond
 	var pond := mesh_at(world, cyl_mesh(3.2, 3.2, 0.05, 16), "5aa9e6", Vector3(15, 0.03, -15))
 	pond.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

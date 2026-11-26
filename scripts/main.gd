@@ -1,8 +1,11 @@
 extends Node3D
-## Bootstraps the Phase 1 vertical slice: world, player, camera, NPCs, data-driven quest.
+## Bootstraps the vertical slice: world, player, camera, NPCs, data-driven quests, settings, audio.
 
-const QUEST_ID := "q.help_neighbor"
-const DIALOGUE_PATH := "res://data/dialogues/help_neighbor.json"
+const QUEST_FILES := [
+	"res://data/quests/01_help_neighbor.json",
+	"res://data/quests/02_harvest_tomato.json",
+]
+const NPC_FILE := "res://data/world/npcs.json"
 const INTERACT_RANGE := 2.1
 
 const PlayerScript := preload("res://scripts/player/player.gd")
@@ -13,11 +16,13 @@ const InteractableScript := preload("res://scripts/world/interactable.gd")
 var player
 var rig
 var hud
-var dialogue: Dictionary = {}
+var engine: QuestEngine
+var npc_data: Dictionary = {}
 var interactables: Array = []
 var near = null
 var rantang: Node3D
 var save_timer := 0.0
+var step_timer := 0.0
 
 func _ready() -> void:
 	_setup_environment()
@@ -35,16 +40,29 @@ func _ready() -> void:
 	rig = CameraRigScript.new()
 	add_child(rig)
 	rig.target = player
-	rig.snap()
 
 	hud = HudScript.new()
 	add_child(hud)
 	hud.action_pressed.connect(_on_action)
 	hud.joystick_changed.connect(func(v: Vector2): player.joystick_vector = v)
+	hud.settings_changed.connect(_on_settings_changed)
+	hud.reset_requested.connect(_on_reset)
 
-	dialogue = _load_json(DIALOGUE_PATH)
+	engine = QuestEngine.new()
+	engine.load_files(QUEST_FILES)
+	engine.changed.connect(_refresh_ui)
+	engine.toast_requested.connect(hud.toast)
+	engine.learned.connect(hud.show_learn)
+	engine.hide_requested.connect(_hide_instance)
+	engine.sfx_requested.connect(AudioManager.play)
+
+	npc_data = _load_json(NPC_FILE)
 	_spawn_interactables(world)
-	_refresh_quest_ui()
+
+	hud.load_settings(GameData.state["settings"])
+	_apply_settings(GameData.state["settings"])
+	rig.snap()
+	_refresh_ui()
 
 func _setup_environment() -> void:
 	var env := Environment.new()
@@ -64,14 +82,16 @@ func _setup_environment() -> void:
 	sun.directional_shadow_max_distance = 60.0
 	add_child(sun)
 
+# ---------- spawning ----------
 func _spawn_interactables(world: Node3D) -> void:
-	for n in dialogue.get("npcs_spawn", []):
+	for n in npc_data.get("npcs", []):
 		var it = InteractableScript.new()
 		it.setup(n["id"], n["name"], n["prompt"], true, n.get("look", {}))
 		it.position = Vector3(float(n["x"]), 0.0, float(n["z"]))
 		world.add_child(it)
 		interactables.append(it)
-	# Table with rantang (quest item)
+
+	# Table with rantang (quest item for q.help_neighbor)
 	var table = InteractableScript.new()
 	table.setup("table", "Meja", "Ambil rantang", false)
 	table.radius = 0.6
@@ -83,14 +103,47 @@ func _spawn_interactables(world: Node3D) -> void:
 	table.add_child(rantang)
 	for i in 3:
 		WorldBuilder.mesh_at(rantang, WorldBuilder.cyl_mesh(0.22, 0.22, 0.16), "2fa36b" if i == 1 else "e8eef0", Vector3(0, 0.08 + i * 0.17, 0))
-	rantang.visible = GameData.quest(QUEST_ID) < 2
+	table.pickup = rantang
 	interactables.append(table)
 
+	# Items declared by quest files (e.g. tomatoes)
+	for q in engine.quests:
+		for s in q.get("spawn_items", []):
+			var item = InteractableScript.new()
+			item.setup(s["id"], "Tomat", "Petik tomat", false)
+			item.instance_key = s["key"]
+			item.solid = false
+			item.position = Vector3(float(s["x"]), 0, float(s["z"]))
+			world.add_child(item)
+			var tomato := SphereMesh.new()
+			tomato.radius = 0.15
+			tomato.height = 0.3
+			tomato.radial_segments = 8
+			tomato.rings = 4
+			item.pickup = WorldBuilder.mesh_at(item, tomato, "e2463a", Vector3(0, 0.64, 0))
+			interactables.append(item)
+
+	for it in interactables:
+		if GameData.state["hidden"].has(it.instance_key):
+			it.set_hidden(true)
+
+func _hide_instance(key: String) -> void:
+	for it in interactables:
+		if it.instance_key == key:
+			it.set_hidden(true)
+
+# ---------- loop ----------
 func _process(delta: float) -> void:
-	player.input_locked = hud.dialog_open()
+	var blocked: bool = hud.is_blocking()
+	player.input_locked = blocked
 	WorldBuilder.update_fades(player.global_position, delta)
-	near = null if hud.dialog_open() else _find_near()
-	hud.set_prompt(_prompt_for(near))
+	near = null if blocked else _find_near()
+	hud.set_prompt(near.prompt_label if near != null else "")
+	if player.is_moving:
+		step_timer -= delta
+		if step_timer <= 0.0:
+			AudioManager.play("step")
+			step_timer = 0.32
 	save_timer += delta
 	if save_timer > 2.0:
 		save_timer = 0.0
@@ -102,88 +155,95 @@ func _unhandled_input(e: InputEvent) -> void:
 		_on_action()
 
 func _on_action() -> void:
-	if hud.dialog_open():
+	if hud.learn_open():
+		hud.close_learn()
+	elif hud.dialog_open():
 		hud.advance()
-	elif near != null:
+	elif near != null and not hud.is_blocking():
 		_interact(near)
+
+func _has_action(it) -> bool:
+	if it.hidden:
+		return false
+	if it.is_npc:
+		return true
+	return not engine.resolve(it.interact_id, "items").is_empty()
 
 func _find_near():
 	var best = null
 	var best_d := INTERACT_RANGE
 	for it in interactables:
-		if _node_for(it) == null:
-			continue
 		var d: float = Vector2(it.global_position.x - player.global_position.x, it.global_position.z - player.global_position.z).length()
-		if d < best_d:
+		if d < best_d and _has_action(it):
 			best_d = d
 			best = it
 	return best
 
-func _prompt_for(it) -> String:
-	if it == null:
-		return ""
-	return it.prompt_label
-
-func _node_for(it):
-	var group: Dictionary = dialogue.get("npcs" if it.is_npc else "items", {})
-	var entry: Dictionary = group.get(it.interact_id, {})
-	var q := str(GameData.quest(QUEST_ID))
-	if entry.has(q):
-		return entry[q]
-	return entry.get("default", null)
+func _idle_lines(id: String) -> Array:
+	for n in npc_data.get("npcs", []):
+		if n["id"] == id:
+			return n.get("idle", [])
+	return []
 
 func _interact(it) -> void:
-	var node = _node_for(it)
-	if node == null:
-		return
 	if it.is_npc:
 		it.face(player.global_position)
 		player.face_towards(it.global_position)
-	_run_node(node)
+	var r := engine.resolve(it.interact_id, "npcs" if it.is_npc else "items")
+	if r.is_empty():
+		var idle := _idle_lines(it.interact_id)
+		if not idle.is_empty():
+			AudioManager.play("open")
+			hud.show_dialog(idle, [], Callable())
+		return
+	_run_node(r["node"], r["quest"], it.instance_key)
 
-func _run_node(node: Dictionary) -> void:
+func _format_lines(lines: Array, q: Dictionary) -> Array:
+	var out: Array = []
+	for l in lines:
+		out.append({"who": l.get("who", ""), "text": engine.fmt(str(l.get("text", "")), q)})
+	return out
+
+func _run_node(node: Dictionary, q: Dictionary, key: String) -> void:
 	var lines: Array = node.get("lines", [])
 	var choices: Array = node.get("choices", [])
 	if lines.is_empty():
-		_apply(node)
+		engine.apply(node, q, key)
 		return
-	hud.show_dialog(lines, choices, func(choice_idx: int):
+	AudioManager.play("open")
+	hud.show_dialog(_format_lines(lines, q), choices, func(choice_idx: int):
 		if choice_idx >= 0:
 			var c: Dictionary = choices[choice_idx]
-			_apply(c)
+			engine.apply(c, q, key)
 			if c.has("reply"):
-				_run_node({"lines": c["reply"]})
+				_run_node({"lines": c["reply"]}, q, key)
 		else:
-			_apply(node)
+			engine.apply(node, q, key)
 	)
 
-func _apply(fx: Dictionary) -> void:
-	var changed := false
-	if fx.has("set_state"):
-		GameData.set_quest(QUEST_ID, int(fx["set_state"]))
-		changed = true
-	if fx.has("give_item"):
-		GameData.add_item(str(fx["give_item"]))
-		if fx["give_item"] == "rantang":
-			rantang.visible = false
-		changed = true
-	if fx.has("remove_item"):
-		GameData.remove_item(str(fx["remove_item"]))
-		changed = true
-	if fx.has("add_sticker"):
-		GameData.state["stickers"] = int(GameData.state["stickers"]) + int(fx["add_sticker"])
-		changed = true
-	if fx.has("learn") and not GameData.state["learned"].has(fx["learn"]):
-		GameData.state["learned"].append(fx["learn"])
-		changed = true
-	if fx.has("toast"):
-		hud.toast(str(fx["toast"]))
-	if changed:
-		GameData.save()
-		_refresh_quest_ui()
+# ---------- settings / UI ----------
+func _apply_settings(s: Dictionary) -> void:
+	rig.use_orthographic = bool(s.get("ortho", false))
+	rig.pitch_deg = float(s.get("pitch", 60.0))
+	rig.distance = float(s.get("distance", 24.0))
+	rig.ortho_size = float(s.get("distance", 24.0)) * 0.66
+	rig.apply_config()
+	AudioManager.set_volume("Voice", float(s.get("vol_voice", 1.0)))
+	AudioManager.set_volume("Ambience", float(s.get("vol_amb", 0.4)))
+	AudioManager.set_volume("SFX", float(s.get("vol_sfx", 0.7)))
 
-func _refresh_quest_ui() -> void:
-	hud.set_quest(str(dialogue.get("title", "")), dialogue.get("steps", []), GameData.quest(QUEST_ID))
+func _on_settings_changed(s: Dictionary) -> void:
+	GameData.state["settings"] = s
+	GameData.save()
+	_apply_settings(s)
+
+func _on_reset() -> void:
+	GameData.reset()
+	get_tree().reload_current_scene()
+
+func _refresh_ui() -> void:
+	hud.set_quests(engine.panel_data())
+	hud.set_stickers(int(GameData.state["stickers"]))
 
 func _load_json(path: String) -> Dictionary:
 	var f := FileAccess.open(path, FileAccess.READ)
