@@ -10,7 +10,8 @@ static func mat(hex: String) -> StandardMaterial3D:
 	if not _mats.has(hex):
 		var m := StandardMaterial3D.new()
 		m.albedo_color = Color(hex)
-		m.roughness = 0.9
+		m.roughness = 1.0
+		m.metallic_specular = 0.0
 		_mats[hex] = m
 	return _mats[hex]
 

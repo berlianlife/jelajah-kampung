@@ -14,7 +14,8 @@ static func _c(v: Variant, fallback: String) -> Color:
 static func mat(c: Color) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = c
-	m.roughness = 0.9
+	m.roughness = 1.0
+	m.metallic_specular = 0.0
 	return m
 
 static func cyl(top: float, bottom: float, h: float, seg: int = 8) -> CylinderMesh:
