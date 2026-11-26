@@ -158,6 +158,14 @@ func panel_data() -> Array:
 			continue
 		var steps: Array = []
 		for s in q.get("steps", []):
-			steps.append({"text": fmt(str(s["text"]), q), "done": cond_ok(s.get("done_if", {}), q) and not s.get("done_if", {}).is_empty()})
+			steps.append({"text": fmt(str(s["text"]), q), "done": cond_ok(s.get("done_if", {}), q) and not s.get("done_if", {}).is_empty(), "target": s.get("target", "")})
 		out.append({"title": q.get("title", ""), "type": q.get("type", "main"), "steps": steps})
 	return out
+
+## Interactable id the player should head to next (first unfinished step of the first open quest row).
+func current_target() -> String:
+	for row in panel_data():
+		for st in row["steps"]:
+			if not st["done"]:
+				return str(st.get("target", ""))
+	return ""

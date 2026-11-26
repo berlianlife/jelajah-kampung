@@ -1,0 +1,380 @@
+{
+  "quest_id": "q.learn_wudhu",
+  "type": "side",
+  "title": "Belajar Wudhu",
+  "goal": 7,
+  "content_status": "draft_pending_review",
+  "review_notes": "Urutan dan redaksi langkah wudhu adalah adaptasi anak dan WAJIB diverifikasi reviewer beserta dalilnya sebelum publish. Belum ada dalil/kutipan di game.",
+  "learning_objective": "Mengenal urutan wudhu dan adab bersuci sebelum shalat",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    {
+      "text": "Temui Ustadz Ali di depan masjid",
+      "done_if": {
+        "state_gte": 1
+      },
+      "target": "ustadz"
+    },
+    {
+      "text": "Urutkan langkah wudhu di tempat wudhu ({n}/{goal})",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "wudhu_station"
+    },
+    {
+      "text": "Kembali ke Ustadz Ali",
+      "done_if": {
+        "state_gte": 3
+      },
+      "target": "ustadz"
+    }
+  ],
+  "npcs": {
+    "ustadz": {
+      "0": {
+        "lines": [
+          {
+            "who": "Ustadz Ali",
+            "text": "Assalamu'alaikum, Ahmad. Sebelum shalat, kita bersuci dulu dengan berwudhu."
+          },
+          {
+            "who": "Ustadz Ali",
+            "text": "Mau belajar urutan wudhu bersama Ustadz di tempat wudhu sebelah masjid?"
+          }
+        ],
+        "choices": [
+          {
+            "label": "Mau, Ustadz!",
+            "set_state": 1,
+            "toast": "Misi sampingan: Belajar Wudhu",
+            "reply": [
+              {
+                "who": "Ustadz Ali",
+                "text": "Ayo ke tempat wudhu di sebelah kiri masjid. Ustadz bantu, ya."
+              }
+            ]
+          },
+          {
+            "label": "Nanti dulu, Ustadz.",
+            "reply": [
+              {
+                "who": "Ustadz Ali",
+                "text": "Baik, Ahmad. Ustadz ada di masjid kalau kamu sudah siap."
+              }
+            ]
+          }
+        ]
+      },
+      "1": {
+        "lines": [
+          {
+            "who": "Ustadz Ali",
+            "text": "Tempat wudhunya di sebelah kiri masjid, Ahmad."
+          }
+        ]
+      },
+      "2": {
+        "lines": [
+          {
+            "who": "Ahmad",
+            "text": "Ustadz, Ahmad sudah bisa mengurutkan langkah wudhu."
+          },
+          {
+            "who": "Ustadz Ali",
+            "text": "Masya Allah, bagus sekali. Nanti kita latihan langsung sebelum shalat berjamaah, ya."
+          }
+        ],
+        "set_state": 3,
+        "add_sticker": 1,
+        "sfx": "done",
+        "learn": "ibadah.wudhu",
+        "learn_title": "Urutan Wudhu",
+        "learn_text": "Ahmad belajar urutan wudhu: niat dan basmalah, membasuh telapak tangan, berkumur dan membersihkan hidung, membasuh wajah, membasuh tangan sampai siku, mengusap kepala dan telinga, lalu membasuh kaki sampai mata kaki."
+      },
+      "3": {
+        "lines": [
+          {
+            "who": "Ustadz Ali",
+            "text": "Jangan lupa berwudhu sebelum shalat, ya, Ahmad."
+          }
+        ]
+      }
+    }
+  },
+  "items": {
+    "wudhu_station": {
+      "1": [
+        {
+          "if": {
+            "counter_gte": 0,
+            "counter_lt": 1
+          },
+          "lines": [
+            {
+              "who": "Ustadz Ali",
+              "text": "Langkah ke-1. Apa yang Ahmad lakukan sekarang?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Berniat di dalam hati, lalu membaca basmalah",
+              "counter_add": 1,
+              "sfx": "pick",
+              "toast": "Bagus! Langkah 1 dari 7"
+            },
+            {
+              "label": "Membasuh kedua telapak tangan",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            },
+            {
+              "label": "Berkumur dan membersihkan hidung",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 1,
+            "counter_lt": 2
+          },
+          "lines": [
+            {
+              "who": "Ustadz Ali",
+              "text": "Langkah ke-2. Apa yang Ahmad lakukan sekarang?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Berkumur dan membersihkan hidung",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            },
+            {
+              "label": "Membasuh wajah",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            },
+            {
+              "label": "Membasuh kedua telapak tangan",
+              "counter_add": 1,
+              "sfx": "pick",
+              "toast": "Bagus! Langkah 2 dari 7"
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 2,
+            "counter_lt": 3
+          },
+          "lines": [
+            {
+              "who": "Ustadz Ali",
+              "text": "Langkah ke-3. Apa yang Ahmad lakukan sekarang?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Membasuh kedua tangan sampai siku",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            },
+            {
+              "label": "Berkumur dan membersihkan hidung",
+              "counter_add": 1,
+              "sfx": "pick",
+              "toast": "Bagus! Langkah 3 dari 7"
+            },
+            {
+              "label": "Membasuh wajah",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 3,
+            "counter_lt": 4
+          },
+          "lines": [
+            {
+              "who": "Ustadz Ali",
+              "text": "Langkah ke-4. Apa yang Ahmad lakukan sekarang?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Membasuh wajah",
+              "counter_add": 1,
+              "sfx": "pick",
+              "toast": "Bagus! Langkah 4 dari 7"
+            },
+            {
+              "label": "Membasuh kedua tangan sampai siku",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            },
+            {
+              "label": "Mengusap kepala dan kedua telinga",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 4,
+            "counter_lt": 5
+          },
+          "lines": [
+            {
+              "who": "Ustadz Ali",
+              "text": "Langkah ke-5. Apa yang Ahmad lakukan sekarang?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Mengusap kepala dan kedua telinga",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            },
+            {
+              "label": "Membasuh kedua kaki sampai mata kaki",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            },
+            {
+              "label": "Membasuh kedua tangan sampai siku",
+              "counter_add": 1,
+              "sfx": "pick",
+              "toast": "Bagus! Langkah 5 dari 7"
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 5,
+            "counter_lt": 6
+          },
+          "lines": [
+            {
+              "who": "Ustadz Ali",
+              "text": "Langkah ke-6. Apa yang Ahmad lakukan sekarang?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Berniat di dalam hati, lalu membaca basmalah",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            },
+            {
+              "label": "Mengusap kepala dan kedua telinga",
+              "counter_add": 1,
+              "sfx": "pick",
+              "toast": "Bagus! Langkah 6 dari 7"
+            },
+            {
+              "label": "Membasuh kedua kaki sampai mata kaki",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 6,
+            "counter_lt": 7
+          },
+          "lines": [
+            {
+              "who": "Ustadz Ali",
+              "text": "Langkah ke-7. Apa yang Ahmad lakukan sekarang?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Membasuh kedua kaki sampai mata kaki",
+              "counter_add": 1,
+              "sfx": "pick",
+              "set_state": 2,
+              "toast": "Semua langkah wudhu sudah urut. Kembali ke Ustadz Ali."
+            },
+            {
+              "label": "Berniat di dalam hati, lalu membaca basmalah",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            },
+            {
+              "label": "Membasuh kedua telapak tangan",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Hampir, Ahmad. Coba ingat lagi, langkah apa yang dikerjakan sebelum itu?"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

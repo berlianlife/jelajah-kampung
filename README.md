@@ -1,6 +1,6 @@
 # Jelajah-Kampung — Godot 4 (Phase 1)
 
-Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama) dan **Panen Tomat** (sampingan), kartu pelajaran, menu Pengaturan (kamera + volume Suara NPC/Suasana/Efek), SFX prosedural tanpa musik.
+Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, rumah Ahmad bisa dimasuki, minimap + penanda tujuan, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama), **Panen Tomat** dan **Belajar Wudhu** (sampingan), Jurnal (J), hotbar inventaris, kartu pelajaran, menu Pengaturan, SFX prosedural tanpa musik.
 
 **Target MVP awal: localhost.** VPS/domain belum dipakai.
 
@@ -47,6 +47,9 @@ scripts/ui/hud.gd                # quest, prompt, dialog, toast, touch
 scripts/ui/virtual_joystick.gd
 data/quests/*.json               # quest: langkah, dialog, kondisi, efek (draf, perlu review)
 data/world/npcs.json             # spawn NPC + dialog idle
+data/world/places.json           # pintu (portal), prop kamar, spot quest
+data/world/items.json            # nama/warna item untuk hotbar
+scripts/ui/minimap.gd            # minimap bulat + titik tujuan
 scripts/quest/quest_engine.gd    # runner quest data-driven
 scripts/audio/audio_manager.gd   # autoload: bus Voice/Ambience/SFX, SFX sintetis
 tools/serve_web.py               # server localhost untuk Web export
@@ -58,5 +61,5 @@ Alur data: `Gameplay → GameData → SaveRepository → LocalSaveRepository`. N
 
 ## Known issues / next
 - Belum ada voice-over NPC (bus Voice sudah siap) dan minimap. Jurnal (J) dan hotbar inventaris sudah ada.
-- Rumah belum bisa dimasuki.
+- Konten Belajar Wudhu (urutan langkah) WAJIB diverifikasi reviewer beserta dalilnya sebelum publish.
 - Menambah quest: buat `data/quests/03_xxx.json`, daftarkan di `QUEST_FILES` (main.gd) dan `include_filter` export.

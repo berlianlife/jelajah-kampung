@@ -8,49 +8,156 @@
   "reviewer": null,
   "version": 2,
   "steps": [
-    {"text": "Temui Bu Aminah di rumahnya", "done_if": {"state_gte": 1}},
-    {"text": "Ambil rantang di meja depan rumah Bu Aminah", "done_if": {"state_gte": 2}},
-    {"text": "Antarkan ke rumah Pak Hasan (atap biru)", "done_if": {"state_gte": 3}}
+    {
+      "text": "Temui Bu Aminah di rumahnya",
+      "done_if": {
+        "state_gte": 1
+      },
+      "target": "aminah"
+    },
+    {
+      "text": "Ambil rantang di meja depan rumah Bu Aminah",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "table"
+    },
+    {
+      "text": "Antarkan ke rumah Pak Hasan (atap biru)",
+      "done_if": {
+        "state_gte": 3
+      },
+      "target": "hasan"
+    }
   ],
   "npcs": {
     "aminah": {
       "0": {
         "lines": [
-          {"who": "Bu Aminah", "text": "Assalamu'alaikum, Ahmad!"},
-          {"who": "Ahmad", "text": "Wa'alaikumussalam warahmatullah, Bu Aminah."},
-          {"who": "Bu Aminah", "text": "Ibu baru masak sayur lodeh. Pak Hasan, tetangga kita di seberang jalan, sedang kurang sehat."},
-          {"who": "Bu Aminah", "text": "Ahmad mau bantu Ibu mengantarkan rantang untuk Pak Hasan?"}
+          {
+            "who": "Bu Aminah",
+            "text": "Assalamu'alaikum, Ahmad!"
+          },
+          {
+            "who": "Ahmad",
+            "text": "Wa'alaikumussalam warahmatullah, Bu Aminah."
+          },
+          {
+            "who": "Bu Aminah",
+            "text": "Ibu baru masak sayur lodeh. Pak Hasan, tetangga kita di seberang jalan, sedang kurang sehat."
+          },
+          {
+            "who": "Bu Aminah",
+            "text": "Ahmad mau bantu Ibu mengantarkan rantang untuk Pak Hasan?"
+          }
         ],
         "choices": [
-          {"label": "Baik, Bu! Ahmad bantu.", "set_state": 1, "toast": "Misi diterima: Membantu Tetangga",
-           "reply": [{"who": "Bu Aminah", "text": "Terima kasih, Nak. Rantangnya ada di meja depan rumah Ibu, sebelah kiri."}]},
-          {"label": "Nanti dulu, Bu.",
-           "reply": [{"who": "Bu Aminah", "text": "Iya, tidak apa-apa. Kalau sudah siap, temui Ibu lagi, ya."}]}
+          {
+            "label": "Baik, Bu! Ahmad bantu.",
+            "set_state": 1,
+            "toast": "Misi diterima: Membantu Tetangga",
+            "reply": [
+              {
+                "who": "Bu Aminah",
+                "text": "Terima kasih, Nak. Rantangnya ada di meja depan rumah Ibu, sebelah kiri."
+              }
+            ]
+          },
+          {
+            "label": "Nanti dulu, Bu.",
+            "reply": [
+              {
+                "who": "Bu Aminah",
+                "text": "Iya, tidak apa-apa. Kalau sudah siap, temui Ibu lagi, ya."
+              }
+            ]
+          }
         ]
       },
-      "1": {"lines": [{"who": "Bu Aminah", "text": "Rantangnya di meja depan rumah Ibu. Hati-hati membawanya, ya."}]},
-      "2": {"lines": [{"who": "Bu Aminah", "text": "Rumah Pak Hasan yang atapnya biru, di seberang jalan."}]},
-      "3": {"lines": [{"who": "Bu Aminah", "text": "Sudah diantar? Terima kasih, Ahmad. Membantu tetangga itu perbuatan baik."}]}
-    },
-    "hasan": {
-      "0": {"lines": [{"who": "Pak Hasan", "text": "Assalamu'alaikum, Ahmad. Bapak istirahat di teras saja hari ini."}]},
-      "1": {"lines": [{"who": "Pak Hasan", "text": "Assalamu'alaikum, Ahmad. Bapak istirahat di teras saja hari ini."}]},
+      "1": {
+        "lines": [
+          {
+            "who": "Bu Aminah",
+            "text": "Rantangnya di meja depan rumah Ibu. Hati-hati membawanya, ya."
+          }
+        ]
+      },
       "2": {
         "lines": [
-          {"who": "Ahmad", "text": "Assalamu'alaikum, Pak Hasan. Ini ada titipan dari Bu Aminah."},
-          {"who": "Pak Hasan", "text": "Wa'alaikumussalam. Masya Allah, terima kasih, Ahmad."},
-          {"who": "Pak Hasan", "text": "Sampaikan terima kasih Bapak untuk Bu Aminah, ya. Jazakumullahu khairan."}
+          {
+            "who": "Bu Aminah",
+            "text": "Rumah Pak Hasan yang atapnya biru, di seberang jalan."
+          }
+        ]
+      },
+      "3": {
+        "lines": [
+          {
+            "who": "Bu Aminah",
+            "text": "Sudah diantar? Terima kasih, Ahmad. Membantu tetangga itu perbuatan baik."
+          }
+        ]
+      }
+    },
+    "hasan": {
+      "0": {
+        "lines": [
+          {
+            "who": "Pak Hasan",
+            "text": "Assalamu'alaikum, Ahmad. Bapak istirahat di teras saja hari ini."
+          }
+        ]
+      },
+      "1": {
+        "lines": [
+          {
+            "who": "Pak Hasan",
+            "text": "Assalamu'alaikum, Ahmad. Bapak istirahat di teras saja hari ini."
+          }
+        ]
+      },
+      "2": {
+        "lines": [
+          {
+            "who": "Ahmad",
+            "text": "Assalamu'alaikum, Pak Hasan. Ini ada titipan dari Bu Aminah."
+          },
+          {
+            "who": "Pak Hasan",
+            "text": "Wa'alaikumussalam. Masya Allah, terima kasih, Ahmad."
+          },
+          {
+            "who": "Pak Hasan",
+            "text": "Sampaikan terima kasih Bapak untuk Bu Aminah, ya. Jazakumullahu khairan."
+          }
         ],
-        "set_state": 3, "remove_item": "rantang", "add_sticker": 1, "sfx": "done",
-        "learn": "adab.tetangga", "learn_title": "Adab Bertetangga",
+        "set_state": 3,
+        "remove_item": "rantang",
+        "add_sticker": 1,
+        "sfx": "done",
+        "learn": "adab.tetangga",
+        "learn_title": "Adab Bertetangga",
         "learn_text": "Ahmad mengantarkan makanan untuk tetangga yang sedang sakit. Berbagi dan menolong tetangga termasuk adab seorang Muslim."
       },
-      "3": {"lines": [{"who": "Pak Hasan", "text": "Lodehnya enak sekali. Terima kasih lagi, Ahmad."}]}
+      "3": {
+        "lines": [
+          {
+            "who": "Pak Hasan",
+            "text": "Lodehnya enak sekali. Terima kasih lagi, Ahmad."
+          }
+        ]
+      }
     }
   },
   "items": {
     "table": {
-      "1": {"set_state": 2, "give_item": "rantang", "hide_self": true, "sfx": "pick", "toast": "Rantang Lodeh masuk inventaris"}
+      "1": {
+        "set_state": 2,
+        "give_item": "rantang",
+        "hide_self": true,
+        "sfx": "pick",
+        "toast": "Rantang Lodeh masuk inventaris"
+      }
     }
   }
 }

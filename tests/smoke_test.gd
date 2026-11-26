@@ -82,6 +82,9 @@ func _run() -> void:
 
 	var j0: Array = main.engine.journal_data()
 	check(j0[0]["status"] == "Belum dimulai" and j0[1]["status"] == "Terkunci", "journal initial statuses")
+	check(main.engine.current_target() == "aminah", "first objective target = Bu Aminah")
+	var tp = main.target_position()
+	check(tp != null and tp.distance_to(Vector3(-8.3, 0, 12.6)) < 0.1, "objective position = Bu Aminah")
 
 	# --- main quest ---
 	await goto(Vector3(-8.3, 0, 14.0))
@@ -160,12 +163,81 @@ func _run() -> void:
 
 	# --- journal ---
 	var j: Array = main.engine.journal_data()
-	check(j.size() == 2 and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai", "journal: both quests Selesai")
+	check(j.size() == 3 and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai", "journal: 2 quests Selesai, wudhu belum")
 	check(j[0]["lessons"][0]["unlocked"] and j[0]["lessons"][0]["title"] == "Adab Bertetangga", "journal: lesson unlocked")
 	check(main.inventory_view().is_empty(), "inventory empty after handing in items")
 	hud.toggle_journal()
 	check(hud.is_blocking() and hud.journal_text.text.contains("Menjaga Kebun Bersama"), "journal panel opens with lessons")
 	hud.toggle_journal()
+
+	# --- enter / exit Ahmad's house ---
+	await goto(Vector3(-10, 0, -0.2))
+	check(near_id() == "door_home", "front door interactable")
+	main._on_action()
+	await frames(3)
+	check(not main.in_village() and main.player.position.x > 90.0, "entered house interior")
+	check(not hud.minimap.visible, "minimap hidden indoors")
+	await goto(Vector3(102.8, 0, -0.6))
+	check(near_id() == "bed", "bed prop interactable")
+	main._on_action()
+	check(hud.dialog_open(), "bed shows a line")
+	main._on_action()
+	await goto(Vector3(100.0, 0, 2.6))
+	check(near_id() == "door_home_out", "exit door interactable")
+	main._on_action()
+	await frames(3)
+	check(main.in_village() and hud.minimap.visible, "back in village with minimap")
+	# walls keep you inside the room
+	await goto(Vector3(100, 0, 0))
+	main.player.joystick_vector = Vector2(1, 0)
+	await ticks(120)
+	main.player.joystick_vector = Vector2.ZERO
+	check(main.player.position.x < 104.5, "interior wall blocks (x=%.2f)" % main.player.position.x)
+	await goto(Vector3(-10, 0, 0.4))
+
+	# --- Belajar Wudhu ---
+	await goto(Vector3(2.2, 0, -8.0))
+	check(near_id() == "ustadz", "Ustadz Ali interactable")
+	main._on_action()
+	main._on_action()
+	hud._close(0)
+	await frames(2)
+	hud.advance()
+	check(gd.quest("q.learn_wudhu") == 1, "Belajar Wudhu accepted")
+	check(main.engine.current_target() == "wudhu_station", "objective = tempat wudhu")
+	await goto(Vector3(-4.3, 0, -6.8))
+	check(near_id() == "wudhu_station", "tempat wudhu interactable")
+	# a wrong answer gives a gentle hint, no progress
+	main._on_action()
+	var node: Dictionary = main.engine.resolve("wudhu_station", "items")["node"]
+	var wrong := -1
+	for i in node["choices"].size():
+		if not node["choices"][i].has("counter_add"):
+			wrong = i
+	hud._close(wrong)
+	await frames(2)
+	check(hud.dialog_open() and gd.counter("q.learn_wudhu") == 0, "wrong choice -> hint, counter stays 0")
+	hud.advance()
+	await frames(2)
+	for k in 7:
+		main._on_action()
+		var nd: Dictionary = main.engine.resolve("wudhu_station", "items")["node"]
+		var right := -1
+		for i in nd["choices"].size():
+			if nd["choices"][i].has("counter_add"):
+				right = i
+		hud._close(right)
+		await frames(2)
+	check(gd.counter("q.learn_wudhu") == 7 and gd.quest("q.learn_wudhu") == 2, "7 wudhu steps ordered -> state 2")
+	check(main.engine.resolve("wudhu_station", "items").is_empty(), "station done after all steps")
+	await goto(Vector3(2.2, 0, -8.0))
+	for i in 3:
+		main._on_action()
+	await frames(2)
+	check(gd.quest("q.learn_wudhu") == 3 and gd.state["learned"].has("ibadah.wudhu"), "Belajar Wudhu complete + lesson")
+	check(hud.learn_open(), "wudhu learning card shown")
+	main._on_action()
+	check(main.engine.current_target() == "", "no objective left")
 
 	# --- settings ---
 	hud.toggle_settings()

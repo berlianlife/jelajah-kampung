@@ -68,6 +68,13 @@ static func flat(parent: Node3D, size: Vector2, pos: Vector3, hex: String) -> vo
 
 ## Buildings that fade when they stand between the camera and the player.
 static var fade_targets: Array = []
+## Shapes for the minimap: {"x","z","w","d","color","round"} in world units (centre + size).
+static var map_shapes: Array = []
+## Interior origin (Ahmad's room) — far outside the village bounds.
+const INTERIOR := Vector3(100, 0, 0)
+
+static func _map(x: float, z: float, w: float, d: float, color: String, round := false) -> void:
+	map_shapes.append({"x": x, "z": z, "w": w, "d": d, "color": color, "round": round})
 
 static func _collect_unique_mats(node: Node, out: Array) -> void:
 	if node is MeshInstance3D and node.material_override:
@@ -84,6 +91,7 @@ static func house(parent: Node3D, x: float, z: float, w: float, d: float, wall: 
 	_house_parts(g, x, z, w, d, wall, roof)
 	var mats: Array = []
 	_collect_unique_mats(g, mats)
+	_map(x, z, w, d, roof)
 	fade_targets.append({"mats": mats, "min_x": x - w / 2.0, "max_x": x + w / 2.0, "min_z": z - d / 2.0, "max_z": z + d / 2.0, "cur": 1.0})
 
 ## Segment vs axis-aligned box (slab test). True when a..b passes through the box.
@@ -206,6 +214,41 @@ static func _wall(parent: Node3D, size: Vector3, pos: Vector3) -> void:
 	cs.shape = sh
 	body.add_child(cs)
 
+## Tempat wudhu: low wall with three taps, facing south (toward the road).
+static func wudhu_station(parent: Node3D, x: float, z: float) -> void:
+	box(parent, Vector3(3.2, 0.9, 0.6), Vector3(x, 0.45, z), "d9cdb3", true)
+	box(parent, Vector3(3.4, 0.12, 0.8), Vector3(x, 0.96, z), "c7b998")
+	box(parent, Vector3(3.2, 0.06, 0.9), Vector3(x, 0.03, z + 0.7), "9fc6d8")
+	for i in 3:
+		var tx := x - 1.0 + i * 1.0
+		mesh_at(parent, cyl_mesh(0.05, 0.05, 0.4, 6), "9aa7ad", Vector3(tx, 1.2, z + 0.15))
+		box(parent, Vector3(0.08, 0.08, 0.3), Vector3(tx, 1.38, z + 0.3), "9aa7ad")
+	_map(x, z, 3.2, 0.8, "9fc6d8")
+
+## Ahmad's room, built at INTERIOR. South wall is low so the camera can see in.
+static func interior(parent: Node3D) -> void:
+	var o := INTERIOR
+	flat(parent, Vector2(9, 7), o + Vector3(0, 0.01, 0), "d8b98c")
+	flat(parent, Vector2(3, 2), o + Vector3(-1.2, 0.02, 0.6), "b0473a")
+	box(parent, Vector3(9, 3, 0.3), o + Vector3(0, 1.5, -3.5), "fbe9cc", true)
+	box(parent, Vector3(0.3, 3, 7), o + Vector3(-4.5, 1.5, 0), "f6e0bd", true)
+	box(parent, Vector3(0.3, 3, 7), o + Vector3(4.5, 1.5, 0), "f6e0bd", true)
+	box(parent, Vector3(3.6, 0.4, 0.3), o + Vector3(-2.7, 0.2, 3.5), "e8cfa6", true)
+	box(parent, Vector3(3.6, 0.4, 0.3), o + Vector3(2.7, 0.2, 3.5), "e8cfa6", true)
+	_wall(parent, Vector3(9, 3, 0.3), o + Vector3(0, 1.5, 3.9))
+	# bed, shelf, small table with a green book
+	box(parent, Vector3(2.0, 0.5, 1.2), o + Vector3(2.8, 0.25, -2.4), "8a5a30", true)
+	box(parent, Vector3(1.8, 0.2, 1.1), o + Vector3(2.8, 0.6, -2.4), "fff4e1")
+	box(parent, Vector3(0.6, 0.15, 0.9), o + Vector3(3.4, 0.75, -2.4), "8ec9ff")
+	box(parent, Vector3(2.2, 2.2, 0.5), o + Vector3(-2.6, 1.1, -3.1), "7a4b2a", true)
+	for r in 3:
+		box(parent, Vector3(2.0, 0.06, 0.45), o + Vector3(-2.6, 0.5 + r * 0.6, -2.9), "a8743f")
+	box(parent, Vector3(1.0, 0.5, 0.7), o + Vector3(-1.2, 0.25, 0.6), "a8743f", true)
+	box(parent, Vector3(0.4, 0.08, 0.3), o + Vector3(-1.2, 0.54, 0.6), "1e7a4f")
+	# doorway frame on the south side
+	box(parent, Vector3(0.15, 2.2, 0.15), o + Vector3(-0.8, 1.1, 3.5), "5b3519")
+	box(parent, Vector3(0.15, 2.2, 0.15), o + Vector3(0.8, 1.1, 3.5), "5b3519")
+
 static func bounds(parent: Node3D) -> void:
 	var h := HALF
 	for spec in [
@@ -230,11 +273,13 @@ static func bounds(parent: Node3D) -> void:
 
 static func build_kampung(world: Node3D) -> void:
 	fade_targets.clear()
-	flat(world, Vector2(120, 120), Vector3(0, 0, 0), "86c45e")
+	map_shapes.clear()
+	flat(world, Vector2(90, 90), Vector3(0, 0, 0), "86c45e")
 	flat(world, Vector2(2 * HALF + 1, 2 * HALF + 1), Vector3(0, 0.005, 0), "8fcd63")
 	# paths
 	for p in [[0, 4.5, 2.6, 29], [0, 2, 2 * HALF, 2.4], [-10, 6.8, 2, 9.6], [10, 6.8, 2, 9.6], [-10, -0.2, 2, 3], [0, -9.5, 5, 1.6]]:
 		flat(world, Vector2(p[2], p[3]), Vector3(p[0], 0.02, p[1]), "e3c48f")
+		_map(p[0], p[1], p[2], p[3], "e9cf9c")
 	# buildings
 	house(world, -10, -4, 6, 5, "fff1d6", "c8553d")   # rumah pemain
 	house(world, -10, 8, 6, 5, "f6e3c0", "d07a3a")    # Bu Aminah
@@ -242,16 +287,23 @@ static func build_kampung(world: Node3D) -> void:
 	house(world, -16, 9.5, 4, 4, "fbe8c8", "b8613b")
 	house(world, 15.5, 9.5, 4, 4, "efe1c6", "7a9a3a")
 	mosque(world, 0, -14)
+	_map(0, -14, 10, 8, "1f8a57")
+	wudhu_station(world, -4.3, -8.5)
 	# market stall + garden blockout
 	box(world, Vector3(4, 0.9, 1.2), Vector3(11, 0.45, -5.4), "a8743f", true)
 	box(world, Vector3(4.2, 0.12, 2.4), Vector3(11, 2.45, -6), "d9473a")
 	garden(world)
+	_map(11, -6, 4, 2, "d9473a")
+	_map(-12.5, -14.5, 7.8, 5.8, "7a5233")
 	# pond
 	var pond := mesh_at(world, cyl_mesh(3.2, 3.2, 0.05, 16), "5aa9e6", Vector3(15, 0.03, -15))
 	pond.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	solid_cylinder(world, 3.2, 1.0, Vector3(15, 0, -15))
 	# trees
-	var trees := [[-17, -3], [-16.5, 5], [-17, 16], [16.5, 16], [17, 3], [16.5, -4], [-4, 16.5], [13.5, 17], [-11, 17], [6.5, -11], [-5.5, -7], [5.5, -3.5], [17, -9], [-7.5, -18], [17.5, -18], [-17.5, -9]]
+	var trees := [[-17, -3], [-16.5, 5], [-17, 16], [16.5, 16], [17, 3], [16.5, -4], [-4, 16.5], [13.5, 17], [-11, 17], [6.5, -11], [3.0, 15.5], [5.5, -3.5], [17, -9], [-7.5, -18], [17.5, -18], [-17.5, -9]]
 	for idx in trees.size():
 		tree(world, trees[idx][0], trees[idx][1], 1.0 + (idx % 3) * 0.18)
+		_map(trees[idx][0], trees[idx][1], 1.6, 1.6, "2f8a45", true)
+	_map(15, -15, 6.4, 6.4, "5aa9e6", true)
+	interior(world)
 	bounds(world)

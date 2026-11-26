@@ -2,7 +2,9 @@
   "quest_id": "q.harvest_tomato",
   "type": "side",
   "title": "Panen Tomat",
-  "requires": {"q.help_neighbor": 3},
+  "requires": {
+    "q.help_neighbor": 3
+  },
   "goal": 5,
   "content_status": "draft_pending_review",
   "learning_objective": "Tolong-menolong dan menjaga lingkungan",
@@ -10,50 +12,169 @@
   "reviewer": null,
   "version": 1,
   "steps": [
-    {"text": "Petik tomat matang ({n}/{goal})", "done_if": {"counter_gte": 5}},
-    {"text": "Serahkan ke Pak Rahman", "done_if": {"state_gte": 2}}
+    {
+      "text": "Petik tomat matang ({n}/{goal})",
+      "done_if": {
+        "counter_gte": 5
+      },
+      "target": "tomato"
+    },
+    {
+      "text": "Serahkan ke Pak Rahman",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "rahman"
+    }
   ],
   "spawn_items": [
-    {"id": "tomato", "key": "tomato_0", "x": -15.3, "z": -15.9},
-    {"id": "tomato", "key": "tomato_1", "x": -14.1, "z": -15.9},
-    {"id": "tomato", "key": "tomato_2", "x": -12.9, "z": -15.9},
-    {"id": "tomato", "key": "tomato_3", "x": -11.7, "z": -15.9},
-    {"id": "tomato", "key": "tomato_4", "x": -15.3, "z": -12.3},
-    {"id": "tomato", "key": "tomato_5", "x": -14.1, "z": -12.3},
-    {"id": "tomato", "key": "tomato_6", "x": -10.5, "z": -12.3},
-    {"id": "tomato", "key": "tomato_7", "x": -9.3, "z": -12.3}
+    {
+      "id": "tomato",
+      "key": "tomato_0",
+      "x": -15.3,
+      "z": -15.9
+    },
+    {
+      "id": "tomato",
+      "key": "tomato_1",
+      "x": -14.1,
+      "z": -15.9
+    },
+    {
+      "id": "tomato",
+      "key": "tomato_2",
+      "x": -12.9,
+      "z": -15.9
+    },
+    {
+      "id": "tomato",
+      "key": "tomato_3",
+      "x": -11.7,
+      "z": -15.9
+    },
+    {
+      "id": "tomato",
+      "key": "tomato_4",
+      "x": -15.3,
+      "z": -12.3
+    },
+    {
+      "id": "tomato",
+      "key": "tomato_5",
+      "x": -14.1,
+      "z": -12.3
+    },
+    {
+      "id": "tomato",
+      "key": "tomato_6",
+      "x": -10.5,
+      "z": -12.3
+    },
+    {
+      "id": "tomato",
+      "key": "tomato_7",
+      "x": -9.3,
+      "z": -12.3
+    }
   ],
   "npcs": {
     "rahman": {
       "0": {
         "lines": [
-          {"who": "Pak Rahman", "text": "Assalamu'alaikum, Ahmad. Tomat di kebun sudah banyak yang merah."},
-          {"who": "Pak Rahman", "text": "Mau bantu Bapak memetik 5 tomat yang sudah matang? Masuk lewat pintu pagar, ya."}
+          {
+            "who": "Pak Rahman",
+            "text": "Assalamu'alaikum, Ahmad. Tomat di kebun sudah banyak yang merah."
+          },
+          {
+            "who": "Pak Rahman",
+            "text": "Mau bantu Bapak memetik 5 tomat yang sudah matang? Masuk lewat pintu pagar, ya."
+          }
         ],
         "choices": [
-          {"label": "Siap, Pak!", "set_state": 1, "toast": "Misi sampingan: Panen Tomat"},
-          {"label": "Nanti dulu, Pak.", "reply": [{"who": "Pak Rahman", "text": "Baik, Nak. Bapak ada di kebun sampai siang."}]}
+          {
+            "label": "Siap, Pak!",
+            "set_state": 1,
+            "toast": "Misi sampingan: Panen Tomat"
+          },
+          {
+            "label": "Nanti dulu, Pak.",
+            "reply": [
+              {
+                "who": "Pak Rahman",
+                "text": "Baik, Nak. Bapak ada di kebun sampai siang."
+              }
+            ]
+          }
         ]
       },
       "1": [
-        {"if": {"counter_lt": 5}, "lines": [{"who": "Pak Rahman", "text": "Sudah dapat {n} tomat. Petik yang merah saja, ya. Daunnya jangan dirusak."}]},
-        {"if": {"counter_gte": 5},
-         "lines": [
-           {"who": "Ahmad", "text": "Pak Rahman, ini lima tomatnya."},
-           {"who": "Pak Rahman", "text": "Alhamdulillah, terima kasih, Ahmad. Kebun ini kita rawat bersama-sama."}
-         ],
-         "set_state": 2, "remove_item": "tomat", "add_sticker": 1, "sfx": "done",
-         "learn": "adab.lingkungan", "learn_title": "Menjaga Kebun Bersama",
-         "learn_text": "Ahmad membantu Pak Rahman memanen dengan hati-hati tanpa merusak tanaman. Tolong-menolong dan menjaga lingkungan termasuk adab sehari-hari."}
+        {
+          "if": {
+            "counter_lt": 5
+          },
+          "lines": [
+            {
+              "who": "Pak Rahman",
+              "text": "Sudah dapat {n} tomat. Petik yang merah saja, ya. Daunnya jangan dirusak."
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 5
+          },
+          "lines": [
+            {
+              "who": "Ahmad",
+              "text": "Pak Rahman, ini lima tomatnya."
+            },
+            {
+              "who": "Pak Rahman",
+              "text": "Alhamdulillah, terima kasih, Ahmad. Kebun ini kita rawat bersama-sama."
+            }
+          ],
+          "set_state": 2,
+          "remove_item": "tomat",
+          "add_sticker": 1,
+          "sfx": "done",
+          "learn": "adab.lingkungan",
+          "learn_title": "Menjaga Kebun Bersama",
+          "learn_text": "Ahmad membantu Pak Rahman memanen dengan hati-hati tanpa merusak tanaman. Tolong-menolong dan menjaga lingkungan termasuk adab sehari-hari."
+        }
       ],
-      "2": {"lines": [{"who": "Pak Rahman", "text": "Kebunnya jadi rapi berkat bantuanmu, Ahmad."}]}
+      "2": {
+        "lines": [
+          {
+            "who": "Pak Rahman",
+            "text": "Kebunnya jadi rapi berkat bantuanmu, Ahmad."
+          }
+        ]
+      }
     }
   },
   "items": {
     "tomato": {
       "1": [
-        {"if": {"counter_lt": 4}, "counter_add": 1, "give_item": "tomat", "hide_self": true, "sfx": "pick", "toast": "Tomat {n}/{goal}"},
-        {"if": {"counter_gte": 4, "counter_lt": 5}, "counter_add": 1, "hide_self": true, "sfx": "pick", "toast": "Lima tomat terkumpul. Kembali ke Pak Rahman."}
+        {
+          "if": {
+            "counter_lt": 4
+          },
+          "counter_add": 1,
+          "give_item": "tomat",
+          "hide_self": true,
+          "sfx": "pick",
+          "toast": "Tomat {n}/{goal}"
+        },
+        {
+          "if": {
+            "counter_gte": 4,
+            "counter_lt": 5
+          },
+          "counter_add": 1,
+          "hide_self": true,
+          "sfx": "pick",
+          "toast": "Lima tomat terkumpul. Kembali ke Pak Rahman."
+        }
       ]
     }
   }

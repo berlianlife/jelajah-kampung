@@ -4,9 +4,12 @@ extends Node3D
 const QUEST_FILES := [
 	"res://data/quests/01_help_neighbor.json",
 	"res://data/quests/02_harvest_tomato.json",
+	"res://data/quests/03_learn_wudhu.json",
 ]
 const NPC_FILE := "res://data/world/npcs.json"
 const ITEM_FILE := "res://data/world/items.json"
+const PLACES_FILE := "res://data/world/places.json"
+const VILLAGE_LIMIT := 40.0
 const INTERACT_RANGE := 2.1
 
 const PlayerScript := preload("res://scripts/player/player.gd")
@@ -20,6 +23,10 @@ var hud
 var engine: QuestEngine
 var npc_data: Dictionary = {}
 var item_data: Dictionary = {}
+var places: Dictionary = {}
+var marker: MeshInstance3D
+var place_name := "Kampung Muslim"
+var env: Environment
 var interactables: Array = []
 var near = null
 var rantang: Node3D
@@ -60,9 +67,11 @@ func _ready() -> void:
 
 	npc_data = _load_json(NPC_FILE)
 	item_data = _load_json(ITEM_FILE).get("items", {})
+	places = _load_json(PLACES_FILE)
 	hud.journal_opened.connect(_refresh_ui)
 	_spawn_interactables(world)
 
+	hud.minimap.shapes = WorldBuilder.map_shapes
 	hud.load_settings(GameData.state["settings"])
 	_apply_settings(GameData.state["settings"])
 	rig.snap()
@@ -70,7 +79,7 @@ func _ready() -> void:
 
 func _setup_environment() -> void:
 	var safari := _is_safari()
-	var env := Environment.new()
+	env = Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color("9fd3ff")
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
@@ -138,9 +147,51 @@ func _spawn_interactables(world: Node3D) -> void:
 			item.pickup = WorldBuilder.mesh_at(item, tomato, "e2463a", Vector3(0, 0.64, 0))
 			interactables.append(item)
 
+	# Doors, room props and quest spots from places.json
+	for d in places.get("portals", []):
+		var door = InteractableScript.new()
+		door.setup(d["id"], d.get("place", ""), d["prompt"], false)
+		door.solid = false
+		door.portal_to = d
+		door.position = Vector3(float(d["x"]), 0, float(d["z"]))
+		world.add_child(door)
+		interactables.append(door)
+	for pr in places.get("props", []):
+		var prop = InteractableScript.new()
+		prop.setup(pr["id"], "", pr["prompt"], false)
+		prop.solid = false
+		prop.lines = pr.get("lines", [])
+		prop.position = Vector3(float(pr["x"]), 0, float(pr["z"]))
+		world.add_child(prop)
+		interactables.append(prop)
+	for sp in places.get("spots", []):
+		var spot = InteractableScript.new()
+		spot.setup(sp["id"], "", sp["prompt"], false)
+		spot.solid = false
+		spot.position = Vector3(float(sp["x"]), 0, float(sp["z"]))
+		world.add_child(spot)
+		interactables.append(spot)
+
 	for it in interactables:
 		if GameData.state["hidden"].has(it.instance_key):
 			it.set_hidden(true)
+
+	# Objective marker (bobbing arrow above the next target)
+	var cone := CylinderMesh.new()
+	cone.top_radius = 0.34
+	cone.bottom_radius = 0.0
+	cone.height = 0.7
+	cone.radial_segments = 4
+	marker = MeshInstance3D.new()
+	marker.mesh = cone
+	var mm := StandardMaterial3D.new()
+	mm.albedo_color = Color("F6B73C")
+	mm.emission_enabled = true
+	mm.emission = Color("a86b00")
+	mm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	marker.material_override = mm
+	marker.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(marker)
 
 func _hide_instance(key: String) -> void:
 	for it in interactables:
@@ -148,12 +199,53 @@ func _hide_instance(key: String) -> void:
 			it.set_hidden(true)
 
 # ---------- loop ----------
+func _teleport(d: Dictionary) -> void:
+	var to: Dictionary = d["to"]
+	player.position = Vector3(float(to["x"]), 0, float(to["z"]))
+	player.velocity = Vector3.ZERO
+	rig.snap()
+	AudioManager.play("open")
+	place_name = "Rumah Ahmad" if player.position.x > VILLAGE_LIMIT else "Kampung Muslim"
+	hud.toast(str(d.get("place", place_name)))
+
+func in_village() -> bool:
+	return player.position.x < VILLAGE_LIMIT
+
+## World position of the next target, or null.
+func target_position() -> Variant:
+	var id := engine.current_target()
+	if id == "":
+		return null
+	var best = null
+	var best_d := INF
+	for it in interactables:
+		if it.interact_id != id or it.hidden:
+			continue
+		if not it.is_npc and engine.resolve(it.interact_id, "items").is_empty():
+			continue
+		var dd: float = it.global_position.distance_to(player.global_position)
+		if dd < best_d:
+			best_d = dd
+			best = it
+	return best.global_position if best != null else null
+
 func _process(delta: float) -> void:
 	var blocked: bool = hud.is_blocking()
 	player.input_locked = blocked
 	WorldBuilder.update_fades(player.global_position, delta, rig.cam.global_position)
 	near = null if blocked else _find_near()
 	hud.set_prompt(near.prompt_label if near != null else "")
+	var village := in_village()
+	place_name = "Kampung Muslim" if village else "Rumah Ahmad"
+	hud.set_place(place_name, village)
+	env.background_color = Color("9fd3ff") if village else Color("3b2a1c")
+	var tgt: Variant = target_position() if village else null
+	hud.minimap.update_state(player.position, player.model.rotation.y, tgt)
+	marker.visible = tgt != null and not blocked
+	if marker.visible:
+		var t := Time.get_ticks_msec() / 1000.0
+		marker.position = tgt + Vector3(0, 2.7 + sin(t * 4.0) * 0.15, 0)
+		marker.rotation.y = t * 2.0
 	if player.is_moving:
 		step_timer -= delta
 		if step_timer <= 0.0:
@@ -180,7 +272,7 @@ func _on_action() -> void:
 func _has_action(it) -> bool:
 	if it.hidden:
 		return false
-	if it.is_npc:
+	if it.is_npc or it.portal_to != null or not it.lines.is_empty():
 		return true
 	return not engine.resolve(it.interact_id, "items").is_empty()
 
@@ -201,6 +293,13 @@ func _idle_lines(id: String) -> Array:
 	return []
 
 func _interact(it) -> void:
+	if it.portal_to != null:
+		_teleport(it.portal_to)
+		return
+	if not it.lines.is_empty():
+		AudioManager.play("open")
+		hud.show_dialog(it.lines, [], Callable())
+		return
 	if it.is_npc:
 		it.face(player.global_position)
 		player.face_towards(it.global_position)

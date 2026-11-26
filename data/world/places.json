@@ -1,0 +1,73 @@
+{
+  "content_status": "draft_pending_review",
+  "portals": [
+    {
+      "id": "door_home",
+      "prompt": "Masuk rumah",
+      "x": -10.0,
+      "z": -0.9,
+      "to": {
+        "x": 100.0,
+        "z": 2.4
+      },
+      "place": "Rumah Ahmad"
+    },
+    {
+      "id": "door_home_out",
+      "prompt": "Keluar rumah",
+      "x": 100.0,
+      "z": 3.1,
+      "to": {
+        "x": -10.0,
+        "z": 0.4
+      },
+      "place": "Kampung Muslim"
+    }
+  ],
+  "props": [
+    {
+      "id": "bed",
+      "prompt": "Lihat tempat tidur",
+      "x": 102.8,
+      "z": -1.4,
+      "lines": [
+        {
+          "who": "Ahmad",
+          "text": "Tempat tidurku sudah rapi. Nanti malam baru tidur, sekarang waktunya membantu warga."
+        }
+      ]
+    },
+    {
+      "id": "shelf",
+      "prompt": "Lihat rak buku",
+      "x": 97.4,
+      "z": -2.2,
+      "lines": [
+        {
+          "who": "Ahmad",
+          "text": "Rak bukuku. Buku-buku cerita dan buku belajar mengaji ada di sini."
+        }
+      ]
+    },
+    {
+      "id": "book",
+      "prompt": "Lihat meja kecil",
+      "x": 98.8,
+      "z": 1.5,
+      "lines": [
+        {
+          "who": "Ahmad",
+          "text": "Ini mushaf yang biasa kubaca bersama Ayah setiap selesai Maghrib."
+        }
+      ]
+    }
+  ],
+  "spots": [
+    {
+      "id": "wudhu_station",
+      "prompt": "Gunakan tempat wudhu",
+      "x": -4.3,
+      "z": -7.6
+    }
+  ]
+}

@@ -12,6 +12,8 @@ var model: Node3D
 var pickup: Node3D
 var radius := 0.4
 var hidden := false
+var portal_to: Variant = null
+var lines: Array = []
 
 func setup(id: String, name_: String, prompt: String, npc: bool, look_: Dictionary = {}) -> void:
 	interact_id = id

@@ -32,6 +32,8 @@ var settings_panel: PanelContainer
 var journal_panel: PanelContainer
 var journal_text: RichTextLabel
 var hotbar: HBoxContainer
+var minimap: Control
+var place_label: Label
 var s_ortho: CheckButton
 var s_pitch: HSlider
 var s_dist: HSlider
@@ -174,6 +176,26 @@ func _ready() -> void:
 	var gear := _button("Pengaturan")
 	gear.pressed.connect(toggle_settings)
 	tr.add_child(gear)
+
+	# Minimap (top-right, under the buttons) + place name
+	minimap = preload("res://scripts/ui/minimap.gd").new()
+	minimap.anchor_left = 1.0
+	minimap.anchor_right = 1.0
+	minimap.offset_left = -172
+	minimap.offset_right = -12
+	minimap.offset_top = 60
+	minimap.offset_bottom = 220
+	root.add_child(minimap)
+	var plp := _panel(WOOD, Color("5b3519"), 16)
+	plp.anchor_left = 1.0
+	plp.anchor_right = 1.0
+	plp.offset_left = -172
+	plp.offset_right = -12
+	plp.offset_top = 226
+	root.add_child(plp)
+	place_label = _label("Kampung Muslim", 13, Color("FFF4E1"))
+	place_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	plp.add_child(place_label)
 
 	# Inventory hotbar (bottom-center)
 	var hp := _panel(Color("fffaf0"), WOOD, 12)
@@ -388,6 +410,10 @@ func show_learn(title: String, text: String) -> void:
 
 func close_learn() -> void:
 	learn_panel.visible = false
+
+func set_place(name: String, show_map: bool) -> void:
+	place_label.text = name
+	minimap.visible = show_map
 
 func toggle_journal() -> void:
 	settings_panel.visible = false
