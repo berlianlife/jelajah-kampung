@@ -65,22 +65,33 @@ func _ready() -> void:
 	_refresh_ui()
 
 func _setup_environment() -> void:
+	var safari := _is_safari()
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color("9fd3ff")
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color("fff6dc")
-	env.ambient_light_energy = 0.6
+	env.ambient_light_color = Color("d9ecff")
+	env.ambient_light_energy = 0.3 if safari else 0.22
+	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	var we := WorldEnvironment.new()
 	we.environment = env
 	add_child(we)
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-55, -35, 0)
-	sun.light_color = Color("fff0cf")
-	sun.light_energy = 1.0
-	sun.shadow_enabled = true
-	sun.directional_shadow_max_distance = 60.0
+	sun.light_color = Color("fff0d6")
+	sun.light_energy = 0.5
+	# Safari's WebGL is the weak spot for shadow maps; skip them there.
+	sun.shadow_enabled = not safari
+	sun.directional_shadow_max_distance = 45.0
 	add_child(sun)
+	if safari:
+		print("Jelajah-Kampung: Safari detected, shadows off")
+
+func _is_safari() -> bool:
+	if not OS.has_feature("web"):
+		return false
+	var ua := str(JavaScriptBridge.eval("navigator.userAgent", true))
+	return ua.contains("Safari") and not ua.contains("Chrome") and not ua.contains("Chromium") and not ua.contains("Android")
 
 # ---------- spawning ----------
 func _spawn_interactables(world: Node3D) -> void:
@@ -136,7 +147,7 @@ func _hide_instance(key: String) -> void:
 func _process(delta: float) -> void:
 	var blocked: bool = hud.is_blocking()
 	player.input_locked = blocked
-	WorldBuilder.update_fades(player.global_position, delta)
+	WorldBuilder.update_fades(player.global_position, delta, rig.pitch_deg)
 	near = null if blocked else _find_near()
 	hud.set_prompt(near.prompt_label if near != null else "")
 	if player.is_moving:

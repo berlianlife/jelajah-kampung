@@ -31,6 +31,8 @@ func near_id() -> String:
 func _run() -> void:
 	var gd = root.get_node("GameData")
 	gd.reset()
+	gd.state["settings"] = gd.default_settings()
+	gd.save()
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await frames(5)
@@ -146,6 +148,9 @@ func _run() -> void:
 	player.position = Vector3(0, 0, 2)
 	await frames(90)
 	check(hasan_house.cur > 0.99, "house restores when player leaves")
+	player.position = Vector3(-10, 0, 1)
+	await frames(60)
+	check(WorldBuilder.fade_targets[1].cur > 0.99, "house in front but not hiding player stays solid")
 
 	# --- settings ---
 	hud.toggle_settings()
@@ -169,5 +174,7 @@ func _run() -> void:
 	check(int(loaded["quests"]["q.help_neighbor"]) == 3 and int(loaded["quests"]["q.harvest_tomato"]) == 2, "quest states persisted")
 
 	gd.reset()
+	gd.state["settings"] = gd.default_settings()
+	gd.save()
 	print("RESULT: %s (%d failed)" % ["OK" if fails == 0 else "FAILED", fails])
 	quit(1 if fails > 0 else 0)

@@ -86,9 +86,13 @@ static func house(parent: Node3D, x: float, z: float, w: float, d: float, wall: 
 	fade_targets.append({"mats": mats, "min_x": x - w / 2.0, "max_x": x + w / 2.0, "min_z": z - d / 2.0, "max_z": z + d / 2.0, "cur": 1.0})
 
 ## Call every frame with the player position.
-static func update_fades(p: Vector3, delta: float) -> void:
+## A house hides the player when the camera ray to the player passes under its roof top (~4.6 m).
+static func update_fades(p: Vector3, delta: float, pitch_deg := 60.0) -> void:
+	var slope := tan(deg_to_rad(pitch_deg))
 	for b in fade_targets:
-		var occ: bool = p.x > b.min_x - 0.8 and p.x < b.max_x + 0.8 and b.max_z > p.z and b.min_z - p.z < 5.5 and p.z < b.max_z
+		var in_x: bool = p.x > b.min_x - 0.6 and p.x < b.max_x + 0.6
+		var gap := maxf(0.0, float(b.min_z) - p.z)
+		var occ: bool = in_x and p.z < b.max_z and gap * slope < 4.6
 		var goal := 0.3 if occ else 1.0
 		var cur: float = b.cur
 		if absf(cur - goal) < 0.002:
