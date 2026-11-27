@@ -17,7 +17,7 @@ func _ready() -> void:
 			state[k] = loaded[k]
 
 func default_settings() -> Dictionary:
-	return {"ortho": false, "pitch": 60.0, "distance": 24.0, "vol_voice": 1.0, "vol_amb": 0.4, "vol_sfx": 0.7}
+	return {"ortho": false, "pitch": 60.0, "distance": 24.0, "vol_voice": 1.0, "vol_amb": 0.4, "vol_sfx": 0.7, "day_cycle": true}
 
 func default_state() -> Dictionary:
 	return {
@@ -29,6 +29,7 @@ func default_state() -> Dictionary:
 		"learned": [],
 		"player": {"x": -10.0, "z": 1.0},
 		"settings": default_settings(),
+		"time": {"day": 1, "hour": 7.0},
 	}
 
 func quest(id: String) -> int:

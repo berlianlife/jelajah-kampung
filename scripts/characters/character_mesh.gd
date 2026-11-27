@@ -88,6 +88,8 @@ static func build(o: Dictionary) -> Node3D:
 		if o.has("peci"):
 			part(head, cyl(0.27, 0.3, 0.2, 10), _c(o["peci"], "2b2418"), Vector3(0, 0.22, 0))
 
+	if o.has("scale"):
+		root.scale = Vector3.ONE * float(o["scale"])
 	if o.get("bag", false):
 		var bag := BoxMesh.new()
 		bag.size = Vector3(0.42, 0.48, 0.2)

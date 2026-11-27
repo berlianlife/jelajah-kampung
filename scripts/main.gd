@@ -5,6 +5,7 @@ const QUEST_FILES := [
 	"res://data/quests/01_help_neighbor.json",
 	"res://data/quests/02_harvest_tomato.json",
 	"res://data/quests/03_learn_wudhu.json",
+	"res://data/quests/04_lost_wallet.json",
 ]
 const NPC_FILE := "res://data/world/npcs.json"
 const ITEM_FILE := "res://data/world/items.json"
@@ -27,6 +28,22 @@ var places: Dictionary = {}
 var marker: MeshInstance3D
 var place_name := "Kampung Muslim"
 var env: Environment
+var sun: DirectionalLight3D
+var safari := false
+var ball: MeshInstance3D
+var kids: Array = []
+
+## Day cycle keyframes: hour -> lighting. 1 real second = 1 game minute when running.
+const DAY_KEYS := [
+	[0.0, 0.12, "9fb4ff", 0.15, "7080b0", "141f3a"],
+	[5.0, 0.15, "ffb27a", 0.16, "8090c0", "2b3a66"],
+	[7.0, 0.50, "fff0d6", 0.22, "d9ecff", "9fd3ff"],
+	[12.0, 0.55, "ffffff", 0.24, "e6f2ff", "8ec9ff"],
+	[16.0, 0.47, "ffe6c0", 0.22, "f3ecdf", "a8cdef"],
+	[18.0, 0.30, "ffc8a0", 0.19, "eadbc8", "e9b48a"],
+	[19.5, 0.12, "9fb4ff", 0.15, "7080b0", "1b2a4a"],
+	[24.0, 0.12, "9fb4ff", 0.15, "7080b0", "141f3a"],
+]
 var interactables: Array = []
 var near = null
 var rantang: Node3D
@@ -78,7 +95,7 @@ func _ready() -> void:
 	_refresh_ui()
 
 func _setup_environment() -> void:
-	var safari := _is_safari()
+	safari = _is_safari()
 	env = Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color("9fd3ff")
@@ -89,7 +106,7 @@ func _setup_environment() -> void:
 	var we := WorldEnvironment.new()
 	we.environment = env
 	add_child(we)
-	var sun := DirectionalLight3D.new()
+	sun = DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-55, -35, 0)
 	sun.light_color = Color("fff0d6")
 	sun.light_energy = 0.5
@@ -112,8 +129,18 @@ func _spawn_interactables(world: Node3D) -> void:
 		var it = InteractableScript.new()
 		it.setup(n["id"], n["name"], n["prompt"], true, n.get("look", {}))
 		it.position = Vector3(float(n["x"]), 0.0, float(n["z"]))
+		it.wander = n.get("wander", [])
 		world.add_child(it)
 		interactables.append(it)
+		if not it.wander.is_empty():
+			kids.append(it)
+	# Playground ball, passed between the kids
+	var bm := SphereMesh.new()
+	bm.radius = 0.2
+	bm.height = 0.4
+	bm.radial_segments = 8
+	bm.rings = 4
+	ball = WorldBuilder.mesh_at(world, bm, "ffffff", Vector3(3, 0.2, 15))
 
 	# Table with rantang (quest item for q.help_neighbor)
 	var table = InteractableScript.new()
@@ -134,17 +161,24 @@ func _spawn_interactables(world: Node3D) -> void:
 	for q in engine.quests:
 		for s in q.get("spawn_items", []):
 			var item = InteractableScript.new()
-			item.setup(s["id"], "Tomat", "Petik tomat", false)
+			item.setup(s["id"], s.get("name", "Tomat"), s.get("prompt", "Petik tomat"), false)
 			item.instance_key = s["key"]
 			item.solid = false
+			item.hide_until_available = s.get("hide_until_available", false)
 			item.position = Vector3(float(s["x"]), 0, float(s["z"]))
 			world.add_child(item)
-			var tomato := SphereMesh.new()
-			tomato.radius = 0.15
-			tomato.height = 0.3
-			tomato.radial_segments = 8
-			tomato.rings = 4
-			item.pickup = WorldBuilder.mesh_at(item, tomato, "e2463a", Vector3(0, 0.64, 0))
+			if s.get("model", "tomato") == "wallet":
+				var wb := BoxMesh.new()
+				wb.size = Vector3(0.36, 0.08, 0.26)
+				item.pickup = WorldBuilder.mesh_at(item, wb, "8a5a30", Vector3(0, 0.06, 0))
+				WorldBuilder.box(item.pickup, Vector3(0.38, 0.03, 0.06), Vector3(0, 0.03, 0.04), "F6B73C")
+			else:
+				var tomato := SphereMesh.new()
+				tomato.radius = 0.15
+				tomato.height = 0.3
+				tomato.radial_segments = 8
+				tomato.rings = 4
+				item.pickup = WorldBuilder.mesh_at(item, tomato, "e2463a", Vector3(0, 0.64, 0))
 			interactables.append(item)
 
 	# Doors, room props and quest spots from places.json
@@ -229,7 +263,60 @@ func target_position() -> Variant:
 			best = it
 	return best.global_position if best != null else null
 
+func _phase_name(h: float) -> String:
+	if h >= 4.0 and h < 10.0:
+		return "Pagi"
+	if h >= 10.0 and h < 15.0:
+		return "Siang"
+	if h >= 15.0 and h < 18.0:
+		return "Sore"
+	return "Malam"
+
+func apply_time(h: float) -> void:
+	var a: Array = DAY_KEYS[0]
+	var b: Array = DAY_KEYS[1]
+	for i in DAY_KEYS.size() - 1:
+		if h >= DAY_KEYS[i][0] and h <= DAY_KEYS[i + 1][0]:
+			a = DAY_KEYS[i]
+			b = DAY_KEYS[i + 1]
+			break
+	var t := (h - float(a[0])) / maxf(0.001, float(b[0]) - float(a[0]))
+	sun.light_energy = lerpf(a[1], b[1], t)
+	sun.light_color = Color(str(a[2])).lerp(Color(str(b[2])), t)
+	env.ambient_light_energy = lerpf(a[3], b[3], t) * (1.35 if safari else 1.0)
+	env.ambient_light_color = Color(str(a[4])).lerp(Color(str(b[4])), t)
+	if in_village():
+		env.background_color = Color(str(a[5])).lerp(Color(str(b[5])), t)
+	var day_t := clampf((h - 5.0) / 14.0, 0.0, 1.0)
+	sun.rotation_degrees = Vector3(-20.0 - 50.0 * sin(PI * day_t), -35.0 + 70.0 * (day_t - 0.5), 0.0) if h > 5.0 and h < 19.0 else Vector3(-55, 20, 0)
+
+func _tick_time(delta: float) -> void:
+	var tm: Dictionary = GameData.state["time"]
+	if bool(GameData.state["settings"].get("day_cycle", true)):
+		tm["hour"] = float(tm["hour"]) + delta / 60.0
+		if float(tm["hour"]) >= 24.0:
+			tm["hour"] = float(tm["hour"]) - 24.0
+			tm["day"] = int(tm["day"]) + 1
+	var h := float(tm["hour"]) if bool(GameData.state["settings"].get("day_cycle", true)) else 8.0
+	apply_time(h)
+	hud.set_clock(int(tm["day"]), _phase_name(h), "%02d:%02d" % [int(h), int(fmod(h, 1.0) * 60.0)])
+
+func _update_ball() -> void:
+	if kids.size() < 2:
+		return
+	var t := Time.get_ticks_msec() / 1000.0
+	var k: int = int(t / 1.6) % 2
+	var f := fmod(t, 1.6) / 1.6
+	var a: Vector3 = kids[k].position
+	var b: Vector3 = kids[(k + 1) % 2].position
+	ball.position = a.lerp(b, f) + Vector3(0, 0.2 + sin(f * PI) * 1.0, 0.3)
+
 func _process(delta: float) -> void:
+	_tick_time(delta)
+	_update_ball()
+	for it in interactables:
+		if it.hide_until_available and not it.hidden and it.pickup:
+			it.pickup.visible = not engine.resolve(it.interact_id, "items").is_empty()
 	var blocked: bool = hud.is_blocking()
 	player.input_locked = blocked
 	WorldBuilder.update_fades(player.global_position, delta, rig.cam.global_position)
@@ -238,7 +325,8 @@ func _process(delta: float) -> void:
 	var village := in_village()
 	place_name = "Kampung Muslim" if village else "Rumah Ahmad"
 	hud.set_place(place_name, village)
-	env.background_color = Color("9fd3ff") if village else Color("3b2a1c")
+	if not village:
+		env.background_color = Color("3b2a1c")
 	var tgt: Variant = target_position() if village else null
 	hud.minimap.update_state(player.position, player.model.rotation.y, tgt)
 	marker.visible = tgt != null and not blocked

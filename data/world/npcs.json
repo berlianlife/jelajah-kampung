@@ -1,21 +1,136 @@
 {
   "content_status": "draft_pending_review",
   "npcs": [
-    {"id": "aminah", "name": "Bu Aminah", "prompt": "Bicara dengan Bu Aminah", "x": -8.3, "z": 12.6,
-     "look": {"robe": "7B61FF", "dress": true, "hijab": "5d47d6"}},
-    {"id": "hasan", "name": "Pak Hasan", "prompt": "Bicara dengan Pak Hasan", "x": 8.6, "z": 12.4,
-     "look": {"robe": "d9cdb3", "pants": "4b5a6a", "peci": "2b2418"}},
-    {"id": "ustadz", "name": "Ustadz Ali", "prompt": "Bicara dengan Ustadz Ali", "x": 2.2, "z": -9.2,
-     "look": {"robe": "ffffff", "pants": "ffffff", "cap": "ffffff"},
-     "idle": [
-       {"who": "Ustadz Ali", "text": "Assalamu'alaikum, Ahmad. Masjid kita sedang disiapkan untuk kegiatan belajar."},
-       {"who": "Ustadz Ali", "text": "Nanti kita belajar wudhu dan shalat bersama, insya Allah."}
-     ]},
-    {"id": "rahman", "name": "Pak Rahman", "prompt": "Bicara dengan Pak Rahman", "x": -14.6, "z": -10.5,
-     "look": {"robe": "a8743f", "pants": "5b4a3a", "peci": "2b2418"},
-     "idle": [{"who": "Pak Rahman", "text": "Assalamu'alaikum, Ahmad. Bapak sedang menyiram kebun."}]},
-    {"id": "sari", "name": "Bu Sari", "prompt": "Bicara dengan Bu Sari", "x": 11, "z": -3.9,
-     "look": {"robe": "c8553d", "dress": true, "hijab": "e8a33a"},
-     "idle": [{"who": "Bu Sari", "text": "Sayur dan buah segar pagi ini! Nanti Ahmad bisa bantu Ibu berjualan, ya."}]}
+    {
+      "id": "aminah",
+      "name": "Bu Aminah",
+      "prompt": "Bicara dengan Bu Aminah",
+      "x": -8.3,
+      "z": 12.6,
+      "look": {
+        "robe": "7B61FF",
+        "dress": true,
+        "hijab": "5d47d6"
+      }
+    },
+    {
+      "id": "hasan",
+      "name": "Pak Hasan",
+      "prompt": "Bicara dengan Pak Hasan",
+      "x": 8.6,
+      "z": 12.4,
+      "look": {
+        "robe": "d9cdb3",
+        "pants": "4b5a6a",
+        "peci": "2b2418"
+      }
+    },
+    {
+      "id": "ustadz",
+      "name": "Ustadz Ali",
+      "prompt": "Bicara dengan Ustadz Ali",
+      "x": 2.2,
+      "z": -9.2,
+      "look": {
+        "robe": "ffffff",
+        "pants": "ffffff",
+        "cap": "ffffff"
+      },
+      "idle": [
+        {
+          "who": "Ustadz Ali",
+          "text": "Assalamu'alaikum, Ahmad. Masjid kita sedang disiapkan untuk kegiatan belajar."
+        },
+        {
+          "who": "Ustadz Ali",
+          "text": "Nanti kita belajar wudhu dan shalat bersama, insya Allah."
+        }
+      ]
+    },
+    {
+      "id": "rahman",
+      "name": "Pak Rahman",
+      "prompt": "Bicara dengan Pak Rahman",
+      "x": -14.6,
+      "z": -10.5,
+      "look": {
+        "robe": "a8743f",
+        "pants": "5b4a3a",
+        "peci": "2b2418"
+      },
+      "idle": [
+        {
+          "who": "Pak Rahman",
+          "text": "Assalamu'alaikum, Ahmad. Bapak sedang menyiram kebun."
+        }
+      ]
+    },
+    {
+      "id": "sari",
+      "name": "Bu Sari",
+      "prompt": "Bicara dengan Bu Sari",
+      "x": 11,
+      "z": -3.9,
+      "look": {
+        "robe": "c8553d",
+        "dress": true,
+        "hijab": "e8a33a"
+      },
+      "idle": [
+        {
+          "who": "Bu Sari",
+          "text": "Sayur dan buah segar pagi ini! Nanti Ahmad bisa bantu Ibu berjualan, ya."
+        }
+      ]
+    },
+    {
+      "id": "kid_umar",
+      "name": "Umar",
+      "prompt": "Sapa Umar",
+      "x": 2.5,
+      "z": 14.5,
+      "look": {
+        "robe": "3f78b5",
+        "cap": "ffffff",
+        "scale": 0.82
+      },
+      "wander": [
+        1.2,
+        13.0,
+        6.0,
+        17.6
+      ],
+      "idle": [
+        {
+          "who": "Umar",
+          "text": "Ayo main bola, Ahmad! Nanti kalau sudah azan, kita ke masjid sama-sama."
+        }
+      ]
+    },
+    {
+      "id": "kid_zaid",
+      "name": "Zaid",
+      "prompt": "Sapa Zaid",
+      "x": 5.2,
+      "z": 15.8,
+      "look": {
+        "robe": "F6B73C",
+        "pants": "5b3519",
+        "cap": "ffffff",
+        "scale": 0.8
+      },
+      "wander": [
+        1.2,
+        13.0,
+        6.0,
+        17.6
+      ],
+      "idle": [
+        {
+          "who": "Zaid",
+          "text": "Hap! Bolanya ke sini, Ahmad! Gantian, ya."
+        }
+      ]
+    }
   ]
 }

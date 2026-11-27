@@ -34,6 +34,8 @@ var journal_text: RichTextLabel
 var hotbar: HBoxContainer
 var minimap: Control
 var place_label: Label
+var clock_label: Label
+var s_day: CheckButton
 var s_ortho: CheckButton
 var s_pitch: HSlider
 var s_dist: HSlider
@@ -177,6 +179,15 @@ func _ready() -> void:
 	gear.pressed.connect(toggle_settings)
 	tr.add_child(gear)
 
+	# Clock (top-center)
+	var cp := _panel(CREAM, WOOD, 16)
+	cp.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	cp.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	cp.position.y = 12
+	clock_label = _label("Hari 1 · Pagi 07:00", 15, DEEP)
+	cp.add_child(clock_label)
+	root.add_child(cp)
+
 	# Minimap (top-right, under the buttons) + place name
 	minimap = preload("res://scripts/ui/minimap.gd").new()
 	minimap.anchor_left = 1.0
@@ -269,7 +280,7 @@ func _ready() -> void:
 	toast_panel = _panel(DEEP, SUN, 24)
 	toast_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	toast_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	toast_panel.position.y = 14
+	toast_panel.position.y = 64
 	toast_label = _label("", 16, Color.WHITE)
 	toast_panel.add_child(toast_label)
 	root.add_child(toast_panel)
@@ -298,7 +309,7 @@ func _ready() -> void:
 
 	# Settings
 	settings_panel = _panel(CREAM, WOOD)
-	_center(settings_panel, 480, 440)
+	_center(settings_panel, 480, 480)
 	root.add_child(settings_panel)
 	var sv := VBoxContainer.new()
 	sv.add_theme_constant_override("separation", 10)
@@ -313,6 +324,10 @@ func _ready() -> void:
 	_row(sv, "Sudut", s_pitch)
 	s_dist = _slider(16, 34, 1)
 	_row(sv, "Jarak", s_dist)
+	s_day = CheckButton.new()
+	s_day.focus_mode = Control.FOCUS_NONE
+	s_day.toggled.connect(func(_v): _emit_settings())
+	_row(sv, "Siklus waktu (pagi-malam)", s_day)
 	sv.add_child(_label("Suara", 16, WOOD))
 	s_voice = _slider(0, 1, 0.05)
 	_row(sv, "Suara NPC", s_voice)
@@ -379,6 +394,13 @@ func set_quests(rows: Array) -> void:
 	var out := ""
 	for q in rows:
 		var tag := "Misi Utama" if q["type"] == "main" else "Misi Sampingan"
+		var all_done := true
+		for st in q["steps"]:
+			if not st["done"]:
+				all_done = false
+		if all_done:
+			out += "[color=#1e7a4f][b]%s: %s[/b] (selesai)[/color]\n" % [tag, q["title"]]
+			continue
 		out += "[b]%s: %s[/b]\n" % [tag, q["title"]]
 		var current_marked := false
 		for s in q["steps"]:
@@ -389,6 +411,8 @@ func set_quests(rows: Array) -> void:
 				current_marked = true
 			else:
 				out += "· %s\n" % s["text"]
+	if not out.contains("»"):
+		out += "[color=#7a4b2a]Ikuti panah kuning untuk menemui warga yang butuh bantuan.[/color]"
 	quest_text.text = out.strip_edges()
 
 func set_stickers(n: int) -> void:
@@ -410,6 +434,9 @@ func show_learn(title: String, text: String) -> void:
 
 func close_learn() -> void:
 	learn_panel.visible = false
+
+func set_clock(day: int, phase: String, hhmm: String) -> void:
+	clock_label.text = "Hari %d · %s %s" % [day, phase, hhmm]
 
 func set_place(name: String, show_map: bool) -> void:
 	place_label.text = name
@@ -483,6 +510,7 @@ func load_settings(s: Dictionary) -> void:
 	s_voice.set_value_no_signal(float(s.get("vol_voice", 1.0)))
 	s_amb.set_value_no_signal(float(s.get("vol_amb", 0.4)))
 	s_sfx.set_value_no_signal(float(s.get("vol_sfx", 0.7)))
+	s_day.set_pressed_no_signal(bool(s.get("day_cycle", true)))
 
 func current_settings() -> Dictionary:
 	return {
@@ -492,6 +520,7 @@ func current_settings() -> Dictionary:
 		"vol_voice": s_voice.value,
 		"vol_amb": s_amb.value,
 		"vol_sfx": s_sfx.value,
+		"day_cycle": s_day.button_pressed,
 	}
 
 func _emit_settings() -> void:

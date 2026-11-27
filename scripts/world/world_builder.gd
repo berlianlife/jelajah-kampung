@@ -300,7 +300,7 @@ static func build_kampung(world: Node3D) -> void:
 	pond.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	solid_cylinder(world, 3.2, 1.0, Vector3(15, 0, -15))
 	# trees
-	var trees := [[-17, -3], [-16.5, 5], [-17, 16], [16.5, 16], [17, 3], [16.5, -4], [-4, 16.5], [13.5, 17], [-11, 17], [6.5, -11], [3.0, 15.5], [5.5, -3.5], [17, -9], [-7.5, -18], [17.5, -18], [-17.5, -9]]
+	var trees := [[-17, -3], [-16.5, 5], [-17, 16], [16.5, 16], [17, 3], [16.5, -4], [-4, 16.5], [13.5, 17], [-11, 17], [6.5, -11], [5.5, -3.5], [17, -9], [-7.5, -18], [17.5, -18], [-17.5, -9]]
 	for idx in trees.size():
 		tree(world, trees[idx][0], trees[idx][1], 1.0 + (idx % 3) * 0.18)
 		_map(trees[idx][0], trees[idx][1], 1.6, 1.6, "2f8a45", true)

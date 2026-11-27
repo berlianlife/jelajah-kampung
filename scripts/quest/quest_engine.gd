@@ -62,22 +62,41 @@ func _pick(v: Variant, q: Dictionary) -> Variant:
 		return v
 	return null
 
+func is_complete(q: Dictionary) -> bool:
+	var steps: Array = q.get("steps", [])
+	if steps.is_empty():
+		return false
+	for s in steps:
+		if not cond_ok(s.get("done_if", {}), q):
+			return false
+	return true
+
 ## Returns {"quest": Dictionary, "node": Dictionary} or {} when nothing applies.
+## When several quests use the same NPC/item, priority is:
+## quest in progress > quest not started (offer) > finished quest > "default" lines.
 func resolve(id: String, kind: String) -> Dictionary:
-	for key_pass in ["state", "default"]:
-		for q in quests:
-			if not requires_ok(q):
+	var best := {}
+	var best_rank := 99
+	for q in quests:
+		if not requires_ok(q):
+			continue
+		var group: Dictionary = q.get(kind, {})
+		if not group.has(id):
+			continue
+		var entry: Dictionary = group[id]
+		var st := GameData.quest(q["quest_id"])
+		var state_rank := 2 if is_complete(q) else (0 if st > 0 else 1)
+		for key in [str(st), "default"]:
+			if not entry.has(key):
 				continue
-			var group: Dictionary = q.get(kind, {})
-			if not group.has(id):
+			var rank: int = state_rank if key != "default" else 3
+			if rank >= best_rank:
 				continue
-			var entry: Dictionary = group[id]
-			var key := str(GameData.quest(q["quest_id"])) if key_pass == "state" else "default"
-			if entry.has(key):
-				var node: Variant = _pick(entry[key], q)
-				if node != null:
-					return {"quest": q, "node": node}
-	return {}
+			var node: Variant = _pick(entry[key], q)
+			if node != null:
+				best = {"quest": q, "node": node}
+				best_rank = rank
+	return best
 
 func fmt(text: String, q: Dictionary) -> String:
 	return text.replace("{n}", str(GameData.counter(q.get("quest_id", "")))).replace("{goal}", str(q.get("goal", "")))
@@ -168,4 +187,12 @@ func current_target() -> String:
 		for st in row["steps"]:
 			if not st["done"]:
 				return str(st.get("target", ""))
+	# Nothing in progress: point at the next available quest's starting point.
+	for q in quests:
+		if requires_ok(q) and GameData.quest(q["quest_id"]) == 0 and not is_complete(q):
+			var steps: Array = q.get("steps", [])
+			if q.has("start_target"):
+				return str(q["start_target"])
+			if not steps.is_empty():
+				return str(steps[0].get("target", ""))
 	return ""

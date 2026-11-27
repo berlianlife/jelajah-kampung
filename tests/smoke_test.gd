@@ -80,6 +80,21 @@ func _run() -> void:
 	await goto(Vector3(-15.3, 0, -15.0))
 	check(near_id() == "", "tomatoes not pickable before quest")
 
+	# wallet is invisible and unusable before the main quest
+	var wallet = null
+	for it in main.interactables:
+		if it.instance_key == "dompet_0":
+			wallet = it
+	await frames(2)
+	check(wallet != null and not wallet.pickup.visible, "dompet hidden before main quest")
+	# kids wander inside the playground
+	var kid = null
+	for it in main.interactables:
+		if it.interact_id == "kid_umar":
+			kid = it
+	var kp: Vector3 = kid.position
+	await create_timer(3.0).timeout
+	check(kid.position.distance_to(kp) > 0.05 and kid.position.x >= 1.1 and kid.position.x <= 6.1 and kid.position.z >= 12.9 and kid.position.z <= 17.7, "kid wanders inside playground")
 	var j0: Array = main.engine.journal_data()
 	check(j0[0]["status"] == "Belum dimulai" and j0[1]["status"] == "Terkunci", "journal initial statuses")
 	check(main.engine.current_target() == "aminah", "first objective target = Bu Aminah")
@@ -115,6 +130,7 @@ func _run() -> void:
 	main._on_action()
 	check(not hud.learn_open(), "learning card closes")
 	check(int(gd.state["stickers"]) == 1 and gd.state["learned"].has("adab.tetangga"), "sticker + learning unlocked")
+	check(main.engine.current_target() == "rahman", "after main quest, arrow points to next offer (Pak Rahman)")
 
 	# --- side quest: Panen Tomat ---
 	await goto(Vector3(-14.6, 0, -9.0))
@@ -149,6 +165,42 @@ func _run() -> void:
 	check(int(gd.state["stickers"]) == 2 and gd.state["learned"].has("adab.lingkungan"), "2nd sticker + learning")
 	main._on_action()
 
+	# --- Dompet yang Tercecer (jujur & amanah) ---
+	await frames(2)
+	check(wallet.pickup.visible, "dompet visible after main quest")
+	await goto(Vector3(6.8, 0, 3.2))
+	check(near_id() == "dompet_0", "dompet interactable")
+	main._on_action()
+	await frames(2)
+	check(gd.quest("q.lost_wallet") == 1 and gd.has_item("dompet") and not wallet.pickup.visible, "dompet picked -> state 1")
+	check(main.engine.current_target() == "sari", "objective = Bu Sari")
+	await goto(Vector3(11, 0, -2.6))
+	check(near_id() == "sari", "Bu Sari interactable")
+	for i in 4:
+		main._on_action()
+	await frames(2)
+	check(gd.quest("q.lost_wallet") == 2, "Bu Sari names the owner -> state 2")
+	var rr: Dictionary = main.engine.resolve("rahman", "npcs")
+	check(rr["quest"]["quest_id"] == "q.lost_wallet", "active wallet quest wins over finished tomato quest for Pak Rahman")
+	await goto(Vector3(-14.6, 0, -9.0))
+	for i in 4:
+		main._on_action()
+	await frames(2)
+	check(gd.quest("q.lost_wallet") == 3 and not gd.has_item("dompet") and gd.state["learned"].has("adab.amanah"), "dompet returned + lesson Jujur dan Amanah")
+	check(int(gd.state["stickers"]) == 3, "3rd sticker")
+	main._on_action()
+
+	# --- day cycle ---
+	main.apply_time(22.0)
+	check(main.sun.light_energy < 0.2 and main.env.background_color.v < 0.35, "night is dark")
+	main.apply_time(12.0)
+	check(main.sun.light_energy > 0.5 and main.env.background_color.v > 0.7, "noon is bright")
+	check(main._phase_name(7.5) == "Pagi" and main._phase_name(13) == "Siang" and main._phase_name(16.5) == "Sore" and main._phase_name(21) == "Malam", "phase names")
+	var h0: float = gd.state["time"]["hour"]
+	await frames(30)
+	check(float(gd.state["time"]["hour"]) > h0, "time advances")
+	check(hud.clock_label.text.begins_with("Hari 1 ·"), "clock shows day + phase")
+
 	# --- occlusion fade ---
 	player.position = Vector3(10, 0, 4.5)
 	await frames(60)
@@ -163,7 +215,7 @@ func _run() -> void:
 
 	# --- journal ---
 	var j: Array = main.engine.journal_data()
-	check(j.size() == 3 and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai", "journal: 2 quests Selesai, wudhu belum")
+	check(j.size() == 4 and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai" and j[3]["status"] == "Selesai", "journal statuses after 3 quests")
 	check(j[0]["lessons"][0]["unlocked"] and j[0]["lessons"][0]["title"] == "Adab Bertetangga", "journal: lesson unlocked")
 	check(main.inventory_view().is_empty(), "inventory empty after handing in items")
 	hud.toggle_journal()

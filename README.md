@@ -1,6 +1,6 @@
 # Jelajah-Kampung — Godot 4 (Phase 1)
 
-Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, rumah Ahmad bisa dimasuki, minimap + penanda tujuan, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama), **Panen Tomat** dan **Belajar Wudhu** (sampingan), Jurnal (J), hotbar inventaris, kartu pelajaran, menu Pengaturan, SFX prosedural tanpa musik.
+Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, rumah Ahmad bisa dimasuki, minimap + penanda tujuan, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama), **Panen Tomat**, **Belajar Wudhu**, **Dompet yang Tercecer** (sampingan), siklus waktu pagi-siang-sore-malam, anak-anak bermain bola, Jurnal (J), hotbar inventaris, kartu pelajaran, menu Pengaturan, SFX prosedural tanpa musik.
 
 **Target MVP awal: localhost.** VPS/domain belum dipakai.
 
@@ -49,6 +49,7 @@ data/quests/*.json               # quest: langkah, dialog, kondisi, efek (draf, 
 data/world/npcs.json             # spawn NPC + dialog idle
 data/world/places.json           # pintu (portal), prop kamar, spot quest
 data/world/items.json            # nama/warna item untuk hotbar
+# quest: prioritas NPC = quest berjalan > belum dimulai > selesai > default
 scripts/ui/minimap.gd            # minimap bulat + titik tujuan
 scripts/quest/quest_engine.gd    # runner quest data-driven
 scripts/audio/audio_manager.gd   # autoload: bus Voice/Ambience/SFX, SFX sintetis

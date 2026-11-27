@@ -1,6 +1,20 @@
 {
   "items": {
-    "rantang": {"name": "Rantang Lodeh", "color": "2fa36b", "short": "Rantang"},
-    "tomat": {"name": "Tomat", "color": "e2463a", "short": "Tomat", "count_from": "q.harvest_tomato"}
+    "rantang": {
+      "name": "Rantang Lodeh",
+      "color": "2fa36b",
+      "short": "Rantang"
+    },
+    "tomat": {
+      "name": "Tomat",
+      "color": "e2463a",
+      "short": "Tomat",
+      "count_from": "q.harvest_tomato"
+    },
+    "dompet": {
+      "name": "Dompet",
+      "color": "8a5a30",
+      "short": "Dompet"
+    }
   }
 }

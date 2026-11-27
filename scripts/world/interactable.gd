@@ -14,6 +14,12 @@ var radius := 0.4
 var hidden := false
 var portal_to: Variant = null
 var lines: Array = []
+## Optional wandering inside [x0, z0, x1, z1] (kids at the playground).
+var wander: Array = []
+var wander_target := Vector3.ZERO
+var wander_wait := 0.0
+var talk_timer := 0.0
+var hide_until_available := false
 
 func setup(id: String, name_: String, prompt: String, npc: bool, look_: Dictionary = {}) -> void:
 	interact_id = id
@@ -47,9 +53,32 @@ func face(p: Vector3) -> void:
 	if model:
 		model.rotation.y = atan2(p.x - global_position.x, p.z - global_position.z)
 		model.set_meta("wave", 1.2)
+	talk_timer = 4.0
 
 func _process(delta: float) -> void:
 	if model:
-		CharacterMesh.animate(model, delta, false)
+		var moving := false
+		if talk_timer > 0.0:
+			talk_timer -= delta
+		elif not wander.is_empty():
+			moving = _wander_step(delta)
+		CharacterMesh.animate(model, delta, moving)
 	elif pickup and not hidden and interact_id == "tomato":
 		pickup.position.y = 0.64 + sin(Time.get_ticks_msec() / 400.0 + position.x) * 0.03
+
+func _wander_step(delta: float) -> bool:
+	if wander_wait > 0.0:
+		wander_wait -= delta
+		return false
+	if wander_target == Vector3.ZERO:
+		wander_target = position
+	var to := wander_target - position
+	to.y = 0.0
+	if to.length() < 0.2:
+		wander_target = Vector3(randf_range(wander[0], wander[2]), 0.0, randf_range(wander[1], wander[3]))
+		wander_wait = randf_range(0.4, 1.6)
+		return false
+	var step := to.normalized() * 2.2 * delta
+	position += step if step.length() < to.length() else to
+	model.rotation.y = lerp_angle(model.rotation.y, atan2(to.x, to.z), 0.2)
+	return true

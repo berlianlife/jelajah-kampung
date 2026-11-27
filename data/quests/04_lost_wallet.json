@@ -1,0 +1,116 @@
+{
+  "quest_id": "q.lost_wallet",
+  "type": "side",
+  "title": "Dompet yang Tercecer",
+  "requires": {
+    "q.help_neighbor": 3
+  },
+  "content_status": "draft_pending_review",
+  "learning_objective": "Jujur dan amanah: mengembalikan barang milik orang lain",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    {
+      "text": "Cari tahu pemilik dompet (tanya Bu Sari di pasar)",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "sari"
+    },
+    {
+      "text": "Kembalikan dompet ke Pak Rahman",
+      "done_if": {
+        "state_gte": 3
+      },
+      "target": "rahman"
+    }
+  ],
+  "spawn_items": [
+    {
+      "id": "dompet",
+      "key": "dompet_0",
+      "x": 6.8,
+      "z": 2.4,
+      "name": "Dompet",
+      "prompt": "Ambil dompet",
+      "model": "wallet",
+      "hide_until_available": true
+    }
+  ],
+  "npcs": {
+    "sari": {
+      "1": {
+        "lines": [
+          {
+            "who": "Ahmad",
+            "text": "Bu Sari, Ahmad menemukan dompet di jalan dekat pasar."
+          },
+          {
+            "who": "Bu Sari",
+            "text": "Masya Allah, itu dompet Pak Rahman. Tadi beliau belanja sayur di sini."
+          },
+          {
+            "who": "Bu Sari",
+            "text": "Antarkan ke Pak Rahman di depan kebun, ya. Ibu senang Ahmad mau mengembalikannya."
+          }
+        ],
+        "set_state": 2,
+        "toast": "Pemiliknya Pak Rahman"
+      },
+      "2": {
+        "lines": [
+          {
+            "who": "Bu Sari",
+            "text": "Pak Rahman ada di depan kebun, Ahmad."
+          }
+        ]
+      },
+      "3": {
+        "lines": [
+          {
+            "who": "Bu Sari",
+            "text": "Pak Rahman sudah cerita. Terima kasih sudah jujur, Ahmad."
+          }
+        ]
+      }
+    },
+    "rahman": {
+      "2": {
+        "lines": [
+          {
+            "who": "Ahmad",
+            "text": "Pak Rahman, ini dompet Bapak yang tercecer di jalan."
+          },
+          {
+            "who": "Pak Rahman",
+            "text": "Alhamdulillah! Bapak sudah mencarinya dari tadi. Isinya juga masih lengkap."
+          },
+          {
+            "who": "Pak Rahman",
+            "text": "Terima kasih, Ahmad. Kamu sudah menjaga amanah dengan baik."
+          }
+        ],
+        "set_state": 3,
+        "remove_item": "dompet",
+        "add_sticker": 1,
+        "sfx": "done",
+        "learn": "adab.amanah",
+        "learn_title": "Jujur dan Amanah",
+        "learn_text": "Ahmad menemukan dompet, mencari tahu pemiliknya, lalu mengembalikannya dalam keadaan utuh. Menjaga dan mengembalikan barang milik orang lain adalah sikap jujur dan amanah."
+      }
+    }
+  },
+  "items": {
+    "dompet": {
+      "0": {
+        "set_state": 1,
+        "give_item": "dompet",
+        "hide_self": true,
+        "sfx": "pick",
+        "toast": "Ada dompet tercecer. Siapa pemiliknya?"
+      }
+    }
+  },
+  "start_target": "dompet"
+}
