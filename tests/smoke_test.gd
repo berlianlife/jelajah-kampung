@@ -93,8 +93,11 @@ func _run() -> void:
 		if it.interact_id == "kid_umar":
 			kid = it
 	var kp: Vector3 = kid.position
-	await create_timer(3.0).timeout
-	check(kid.position.distance_to(kp) > 0.05 and kid.position.x >= 1.1 and kid.position.x <= 6.1 and kid.position.z >= 12.9 and kid.position.z <= 17.7, "kid wanders inside playground")
+	var max_d := 0.0
+	for i in 16:
+		await create_timer(0.25).timeout
+		max_d = maxf(max_d, kid.position.distance_to(kp))
+	check(max_d > 0.3 and kid.position.x >= 1.1 and kid.position.x <= 6.1 and kid.position.z >= 12.9 and kid.position.z <= 17.7, "kid wanders inside playground")
 	var j0: Array = main.engine.journal_data()
 	check(j0[0]["status"] == "Belum dimulai" and j0[1]["status"] == "Terkunci", "journal initial statuses")
 	check(main.engine.current_target() == "aminah", "first objective target = Bu Aminah")
@@ -215,7 +218,7 @@ func _run() -> void:
 
 	# --- journal ---
 	var j: Array = main.engine.journal_data()
-	check(j.size() == 5 and j[4]["status"] == "Belum dimulai" and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai" and j[3]["status"] == "Selesai", "journal statuses after 3 quests")
+	check(j.size() == 6 and j[5]["status"] == "Terkunci" and j[4]["status"] == "Belum dimulai" and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai" and j[3]["status"] == "Selesai", "journal statuses after 3 quests")
 	check(j[0]["lessons"][0]["unlocked"] and j[0]["lessons"][0]["title"] == "Adab Bertetangga", "journal: lesson unlocked")
 	check(main.inventory_view().is_empty(), "inventory empty after handing in items")
 	hud.toggle_journal()
@@ -350,7 +353,65 @@ func _run() -> void:
 	main._on_action()
 	await frames(2)
 	check(main.in_village(), "back in village")
+	check(main.engine.current_target() == "ustadz", "next offer = Ustadz Ali (Rukun Iman)")
+
+	# --- Mengenal Rukun Iman (explore 6 boards) ---
+	await goto(Vector3(2.2, 0, -8.0))
+	main._on_action()
+	main._on_action()
+	hud._close(0)
+	await frames(2)
+	hud.advance()
+	await frames(2)
+	check(gd.quest("q.rukun_iman") == 1, "Rukun Iman accepted")
+	var boards_read := 0
+	for i in 6:
+		var key := "papan_iman_%d" % (i + 1)
+		var bd = null
+		for it in main.interactables:
+			if it.instance_key == key:
+				bd = it
+		await goto(bd.position + Vector3(0, 0, 1.0))
+		if near_id() == key:
+			main._on_action()
+			var ok: bool = hud.dialog_open() and hud.text_label.text.begins_with("Rukun Iman")
+			main._on_action()
+			await frames(2)
+			if ok:
+				boards_read += 1
+	check(boards_read == 6 and gd.counter("q.rukun_iman") == 6, "6 Rukun Iman boards read (read=%d)" % boards_read)
+	await goto(Vector3(2.2, 0, -8.0))
+	main._on_action()
+	main._on_action()
+	hud._close(2)
+	await frames(2)
+	check(hud.dialog_open() and gd.quest("q.rukun_iman") == 1, "wrong answer (Tujuh) -> hint")
+	hud.advance()
+	await frames(2)
+	main._on_action()
+	main._on_action()
+	hud._close(1)
+	await frames(2)
+	check(gd.quest("q.rukun_iman") == 2 and gd.state["learned"].has("aqidah.rukun_iman"), "Rukun Iman complete + lesson")
+	hud.advance()
+	await frames(2)
+	if hud.learn_open():
+		main._on_action()
 	check(main.engine.current_target() == "", "no objective left")
+
+	# --- night behaviour ---
+	gd.state["time"]["hour"] = 21.0
+	await frames(3)
+	var umar = null
+	for it in main.interactables:
+		if it.interact_id == "kid_umar":
+			umar = it
+	check(umar.asleep and not umar.visible and not main.ball.visible, "kids go home at night")
+	check(WorldBuilder.lamp_mats[0].emission_energy_multiplier > 1.0, "street lamps on at night")
+	check(main._idle_lines("sari")[0]["text"].contains("tutup"), "Bu Sari: pasar tutup at night")
+	gd.state["time"]["hour"] = 9.0
+	await frames(3)
+	check(umar.visible and WorldBuilder.lamp_mats[0].emission_energy_multiplier == 0.0, "morning: kids back, lamps off")
 
 	# --- portrait phone layout ---
 	main.get_window().size = Vector2i(400, 800)

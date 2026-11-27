@@ -21,6 +21,8 @@ var wander_wait := 0.0
 var talk_timer := 0.0
 var hide_until_available := false
 var info_lines: Array = []
+var hide_at_night := false
+var asleep := false
 
 func setup(id: String, name_: String, prompt: String, npc: bool, look_: Dictionary = {}) -> void:
 	interact_id = id

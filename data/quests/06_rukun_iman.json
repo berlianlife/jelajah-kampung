@@ -1,0 +1,253 @@
+{
+  "quest_id": "q.rukun_iman",
+  "type": "side",
+  "title": "Mengenal Rukun Iman",
+  "requires": {
+    "q.learn_wudhu": 3
+  },
+  "goal": 6,
+  "start_target": "ustadz",
+  "content_status": "draft_pending_review",
+  "review_notes": "Teks papan adalah ringkasan untuk anak. Redaksi tiap rukun dan dalilnya WAJIB diverifikasi reviewer sebelum publish. Tidak ada penggambaran malaikat/nabi/rasul (hanya teks).",
+  "learning_objective": "Mengenal enam Rukun Iman",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    {
+      "text": "Temui Ustadz Ali di depan masjid",
+      "done_if": {
+        "state_gte": 1
+      },
+      "target": "ustadz"
+    },
+    {
+      "text": "Temukan papan Rukun Iman di kampung ({n}/{goal})",
+      "done_if": {
+        "counter_gte": 6
+      },
+      "target": "papan_iman"
+    },
+    {
+      "text": "Jawab pertanyaan Ustadz Ali",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "ustadz"
+    }
+  ],
+  "spawn_items": [
+    {
+      "id": "papan_iman",
+      "key": "papan_iman_1",
+      "x": -4.6,
+      "z": 4.6,
+      "name": "Papan Rukun Iman",
+      "prompt": "Baca papan",
+      "model": "board",
+      "info": [
+        {
+          "who": "Papan",
+          "text": "Rukun Iman pertama: iman kepada Allah, Rabb yang menciptakan dan mengatur alam semesta, satu-satunya yang berhak disembah."
+        }
+      ]
+    },
+    {
+      "id": "papan_iman",
+      "key": "papan_iman_2",
+      "x": 4.2,
+      "z": 6.4,
+      "name": "Papan Rukun Iman",
+      "prompt": "Baca papan",
+      "model": "board",
+      "info": [
+        {
+          "who": "Papan",
+          "text": "Rukun Iman kedua: iman kepada para malaikat, makhluk Allah yang selalu taat kepada-Nya."
+        }
+      ]
+    },
+    {
+      "id": "papan_iman",
+      "key": "papan_iman_3",
+      "x": 14.2,
+      "z": 0.2,
+      "name": "Papan Rukun Iman",
+      "prompt": "Baca papan",
+      "model": "board",
+      "info": [
+        {
+          "who": "Papan",
+          "text": "Rukun Iman ketiga: iman kepada kitab-kitab yang Allah turunkan, di antaranya Al-Qur'an."
+        }
+      ]
+    },
+    {
+      "id": "papan_iman",
+      "key": "papan_iman_4",
+      "x": -15.5,
+      "z": 2.8,
+      "name": "Papan Rukun Iman",
+      "prompt": "Baca papan",
+      "model": "board",
+      "info": [
+        {
+          "who": "Papan",
+          "text": "Rukun Iman keempat: iman kepada para rasul yang Allah utus untuk menyampaikan agama-Nya."
+        }
+      ]
+    },
+    {
+      "id": "papan_iman",
+      "key": "papan_iman_5",
+      "x": 8.6,
+      "z": -9.8,
+      "name": "Papan Rukun Iman",
+      "prompt": "Baca papan",
+      "model": "board",
+      "info": [
+        {
+          "who": "Papan",
+          "text": "Rukun Iman kelima: iman kepada hari akhir."
+        }
+      ]
+    },
+    {
+      "id": "papan_iman",
+      "key": "papan_iman_6",
+      "x": -2.3,
+      "z": 17.6,
+      "name": "Papan Rukun Iman",
+      "prompt": "Baca papan",
+      "model": "board",
+      "info": [
+        {
+          "who": "Papan",
+          "text": "Rukun Iman keenam: iman kepada takdir yang baik dan yang buruk."
+        }
+      ]
+    }
+  ],
+  "npcs": {
+    "ustadz": {
+      "0": {
+        "lines": [
+          {
+            "who": "Ustadz Ali",
+            "text": "Assalamu'alaikum, Ahmad. Wudhumu sudah bagus. Sekarang kita belajar Rukun Iman."
+          },
+          {
+            "who": "Ustadz Ali",
+            "text": "Ustadz memasang enam papan di sekitar kampung. Mau mencarinya sambil berjalan-jalan?"
+          }
+        ],
+        "choices": [
+          {
+            "label": "Mau, Ustadz!",
+            "set_state": 1,
+            "toast": "Misi sampingan: Mengenal Rukun Iman",
+            "reply": [
+              {
+                "who": "Ustadz Ali",
+                "text": "Ikuti panah kuning, ya. Baca setiap papan dengan teliti."
+              }
+            ]
+          },
+          {
+            "label": "Nanti dulu, Ustadz.",
+            "reply": [
+              {
+                "who": "Ustadz Ali",
+                "text": "Baik, Ahmad. Papannya tidak ke mana-mana."
+              }
+            ]
+          }
+        ]
+      },
+      "1": [
+        {
+          "if": {
+            "counter_lt": 6
+          },
+          "lines": [
+            {
+              "who": "Ustadz Ali",
+              "text": "Sudah {n} papan yang kamu baca. Masih ada yang belum, ayo cari lagi."
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 6
+          },
+          "lines": [
+            {
+              "who": "Ahmad",
+              "text": "Ustadz, keenam papannya sudah Ahmad baca."
+            },
+            {
+              "who": "Ustadz Ali",
+              "text": "Masya Allah. Sekarang Ustadz tanya: Rukun Iman ada berapa, Ahmad?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Lima",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Yang lima itu Rukun Islam. Coba hitung lagi papan yang kamu baca, lalu bicara lagi dengan Ustadz."
+                }
+              ]
+            },
+            {
+              "label": "Enam",
+              "set_state": 2,
+              "add_sticker": 1,
+              "sfx": "done",
+              "learn": "aqidah.rukun_iman",
+              "learn_title": "Enam Rukun Iman",
+              "learn_text": "Rukun Iman ada enam: iman kepada Allah, para malaikat, kitab-kitab-Nya, para rasul, hari akhir, dan takdir yang baik maupun yang buruk.",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Benar, Rukun Iman ada enam. Barakallahu fiik, Ahmad."
+                }
+              ]
+            },
+            {
+              "label": "Tujuh",
+              "reply": [
+                {
+                  "who": "Ustadz Ali",
+                  "text": "Belum tepat. Coba hitung lagi papan yang kamu baca, lalu bicara lagi dengan Ustadz."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "2": {
+        "lines": [
+          {
+            "who": "Ustadz Ali",
+            "text": "Semoga Allah meneguhkan iman kita, Ahmad."
+          }
+        ]
+      }
+    }
+  },
+  "items": {
+    "papan_iman": {
+      "1": {
+        "if": {
+          "counter_lt": 6
+        },
+        "counter_add": 1,
+        "hide_self": true,
+        "sfx": "pick",
+        "toast": "Papan Rukun Iman {n}/{goal}"
+      }
+    }
+  }
+}

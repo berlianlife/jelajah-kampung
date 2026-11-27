@@ -70,6 +70,9 @@ static func flat(parent: Node3D, size: Vector2, pos: Vector3, hex: String) -> vo
 static var fade_targets: Array = []
 ## Shapes for the minimap: {"x","z","w","d","color","round"} in world units (centre + size).
 static var map_shapes: Array = []
+## Emissive bulb materials of the street lamps (brightened at night by main).
+static var lamp_mats: Array = []
+static var lamp_pools: Array = []
 ## Interior origin (Ahmad's room) — far outside the village bounds.
 const INTERIOR := Vector3(100, 0, 0)
 const MASJID_IN := Vector3(100, 0, 30)
@@ -281,6 +284,49 @@ static func masjid_interior(parent: Node3D) -> void:
 		box(parent, Vector3(0.25, 0.3, 1.6), o + Vector3(-6.5, 0.6 + r * 0.45, -2.0), "1e7a4f")
 	box(parent, Vector3(1.6, 0.5, 0.5), o + Vector3(-2.6, 0.25, 4.5), "8a5a30", true)
 
+## Street lamps along the roads. Bulbs use one shared emissive material per lamp.
+static func street_lamps(parent: Node3D) -> void:
+	for p in [[-6.0, 3.6], [6.0, 3.6], [-14.0, 3.6], [14.0, 3.6], [1.9, 9.0], [1.9, -6.0], [-1.9, 14.0]]:
+		var x: float = p[0]
+		var z: float = p[1]
+		mesh_at(parent, cyl_mesh(0.07, 0.09, 2.6, 6), "3b3b3b", Vector3(x, 1.3, z))
+		box(parent, Vector3(0.5, 0.06, 0.06), Vector3(x, 2.6, z), "3b3b3b")
+		var bulb := SphereMesh.new()
+		bulb.radius = 0.16
+		bulb.height = 0.32
+		bulb.radial_segments = 8
+		bulb.rings = 4
+		var m := StandardMaterial3D.new()
+		m.albedo_color = Color("fff1c4")
+		m.emission_enabled = true
+		m.emission = Color("ffd36b")
+		m.emission_energy_multiplier = 0.0
+		var b := MeshInstance3D.new()
+		b.mesh = bulb
+		b.material_override = m
+		b.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		b.position = Vector3(x + 0.22, 2.45, z)
+		parent.add_child(b)
+		lamp_mats.append(m)
+		solid_cylinder(parent, 0.15, 2.6, Vector3(x, 0, z))
+		# light pool on the ground (alpha raised at night)
+		var pool := MeshInstance3D.new()
+		var disc := CylinderMesh.new()
+		disc.top_radius = 2.2
+		disc.bottom_radius = 2.2
+		disc.height = 0.01
+		disc.radial_segments = 20
+		pool.mesh = disc
+		var pm := StandardMaterial3D.new()
+		pm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		pm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		pm.albedo_color = Color(1.0, 0.85, 0.45, 0.0)
+		pool.material_override = pm
+		pool.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		pool.position = Vector3(x + 0.22, 0.03, z)
+		parent.add_child(pool)
+		lamp_pools.append(pm)
+
 static func bounds(parent: Node3D) -> void:
 	var h := HALF
 	for spec in [
@@ -306,6 +352,8 @@ static func bounds(parent: Node3D) -> void:
 static func build_kampung(world: Node3D) -> void:
 	fade_targets.clear()
 	map_shapes.clear()
+	lamp_mats.clear()
+	lamp_pools.clear()
 	flat(world, Vector2(90, 90), Vector3(0, 0, 0), "86c45e")
 	flat(world, Vector2(2 * HALF + 1, 2 * HALF + 1), Vector3(0, 0.005, 0), "8fcd63")
 	# paths
@@ -339,4 +387,5 @@ static func build_kampung(world: Node3D) -> void:
 	_map(15, -15, 6.4, 6.4, "5aa9e6", true)
 	interior(world)
 	masjid_interior(world)
+	street_lamps(world)
 	bounds(world)

@@ -7,6 +7,7 @@ const QUEST_FILES := [
 	"res://data/quests/03_learn_wudhu.json",
 	"res://data/quests/04_lost_wallet.json",
 	"res://data/quests/05_rukun_islam.json",
+	"res://data/quests/06_rukun_iman.json",
 ]
 const NPC_FILE := "res://data/world/npcs.json"
 const ITEM_FILE := "res://data/world/items.json"
@@ -139,6 +140,7 @@ func _spawn_interactables(world: Node3D) -> void:
 		it.setup(n["id"], n["name"], n["prompt"], true, n.get("look", {}))
 		it.position = Vector3(float(n["x"]), 0.0, float(n["z"]))
 		it.wander = n.get("wander", [])
+		it.hide_at_night = n.get("hide_at_night", false)
 		world.add_child(it)
 		interactables.append(it)
 		if not it.wander.is_empty():
@@ -177,7 +179,16 @@ func _spawn_interactables(world: Node3D) -> void:
 			item.position = Vector3(float(s["x"]), 0, float(s["z"]))
 			world.add_child(item)
 			item.info_lines = s.get("info", [])
-			if s.get("model", "tomato") == "card":
+			if s.get("model", "tomato") == "board":
+				var bp := Node3D.new()
+				item.add_child(bp)
+				item.pickup = bp
+				WorldBuilder.mesh_at(bp, WorldBuilder.cyl_mesh(0.06, 0.06, 1.3, 6), "7a4b2a", Vector3(0, 0.65, 0))
+				WorldBuilder.box(bp, Vector3(0.9, 0.6, 0.08), Vector3(0, 1.4, 0), "a8743f")
+				WorldBuilder.box(bp, Vector3(0.74, 0.44, 0.02), Vector3(0, 1.4, 0.05), "fff4e1")
+				WorldBuilder.box(bp, Vector3(0.5, 0.06, 0.01), Vector3(0, 1.48, 0.065), "1e7a4f")
+				WorldBuilder.box(bp, Vector3(0.6, 0.04, 0.01), Vector3(0, 1.36, 0.065), "7a4b2a")
+			elif s.get("model", "tomato") == "card":
 				var cb := BoxMesh.new()
 				cb.size = Vector3(0.5, 0.7, 0.06)
 				item.pickup = WorldBuilder.mesh_at(item, cb, "1e7a4f", Vector3(0, 0.75, 0))
@@ -357,6 +368,7 @@ func _update_ball() -> void:
 
 func _process(delta: float) -> void:
 	_tick_time(delta)
+	_apply_night(is_night())
 	_update_ball()
 	for it in interactables:
 		if it.hide_until_available and not it.hidden and it.pickup:
@@ -402,7 +414,7 @@ func _on_action() -> void:
 		_interact(near)
 
 func _has_action(it) -> bool:
-	if it.hidden:
+	if it.hidden or it.asleep:
 		return false
 	if it.is_npc or it.portal_to != null or not it.lines.is_empty():
 		return true
@@ -418,9 +430,34 @@ func _find_near():
 			best = it
 	return best
 
+func is_night() -> bool:
+	var h := current_hour()
+	return h >= 18.5 or h < 5.0
+
+func current_hour() -> float:
+	if not bool(GameData.state["settings"].get("day_cycle", true)):
+		return 8.0
+	return float(GameData.state["time"]["hour"])
+
+func _apply_night(night: bool) -> void:
+	var glow := 0.0
+	var h := current_hour()
+	if h >= 17.8 or h < 5.5:
+		glow = 2.2
+	for m in WorldBuilder.lamp_mats:
+		m.emission_energy_multiplier = glow
+	for pm in WorldBuilder.lamp_pools:
+		pm.albedo_color.a = 0.22 if glow > 0.0 else 0.0
+	for k in kids:
+		k.asleep = night and k.hide_at_night
+		k.visible = not k.asleep
+	ball.visible = not night
+
 func _idle_lines(id: String) -> Array:
 	for n in npc_data.get("npcs", []):
 		if n["id"] == id:
+			if is_night() and n.has("idle_night"):
+				return n["idle_night"]
 			return n.get("idle", [])
 	return []
 

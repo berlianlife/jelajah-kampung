@@ -400,7 +400,8 @@ func set_quests(rows: Array) -> void:
 			if not st["done"]:
 				all_done = false
 		if all_done:
-			out += "[color=#1e7a4f][b]%s: %s[/b] (selesai)[/color]\n" % [tag, q["title"]]
+			if q["type"] == "main":
+				out += "[color=#1e7a4f][b]%s: %s[/b] (selesai)[/color]\n" % [tag, q["title"]]
 			continue
 		out += "[b]%s: %s[/b]\n" % [tag, q["title"]]
 		var current_marked := false
