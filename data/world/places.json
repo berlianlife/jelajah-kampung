@@ -50,6 +50,23 @@
         "z": -8.4
       },
       "place": "Kampung Muslim"
+    },
+    {
+      "id": "door_aminah_out",
+      "prompt": "Pamit dan keluar",
+      "x": 100.0,
+      "z": -26.4,
+      "to": {
+        "x": -10.0,
+        "z": 11.6
+      },
+      "place": "Kampung Muslim",
+      "lines_on_enter": [
+        {
+          "who": "Ahmad",
+          "text": "Terima kasih, Bu. Assalamu'alaikum."
+        }
+      ]
     }
   ],
   "props": [
@@ -124,6 +141,18 @@
           "text": "Sandal disusun rapi di rak supaya tidak menghalangi jalan jamaah."
         }
       ]
+    },
+    {
+      "id": "aminah_cupboard",
+      "prompt": "Lihat lemari",
+      "x": 96.0,
+      "z": -32.6,
+      "lines": [
+        {
+          "who": "Ahmad",
+          "text": "Lemari piring Bu Aminah tersusun rapi."
+        }
+      ]
     }
   ],
   "spots": [
@@ -132,6 +161,12 @@
       "prompt": "Gunakan tempat wudhu",
       "x": -4.3,
       "z": -7.6
+    },
+    {
+      "id": "pintu_aminah",
+      "prompt": "Ke pintu rumah Bu Aminah",
+      "x": -10.0,
+      "z": 11.0
     }
   ],
   "areas": [
@@ -155,6 +190,17 @@
       "max": [
         108,
         36
+      ]
+    },
+    {
+      "name": "Rumah Bu Aminah",
+      "min": [
+        94,
+        -35
+      ],
+      "max": [
+        106,
+        -25
       ]
     }
   ]

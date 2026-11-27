@@ -76,6 +76,7 @@ static var lamp_pools: Array = []
 ## Interior origin (Ahmad's room) — far outside the village bounds.
 const INTERIOR := Vector3(100, 0, 0)
 const MASJID_IN := Vector3(100, 0, 30)
+const AMINAH_IN := Vector3(100, 0, -30)
 
 static func _map(x: float, z: float, w: float, d: float, color: String, round := false) -> void:
 	map_shapes.append({"x": x, "z": z, "w": w, "d": d, "color": color, "round": round})
@@ -327,6 +328,29 @@ static func street_lamps(parent: Node3D) -> void:
 		parent.add_child(pool)
 		lamp_pools.append(pm)
 
+## Bu Aminah's living room at AMINAH_IN (10 x 8): mat, low table with dishes, cupboard.
+static func aminah_interior(parent: Node3D) -> void:
+	var o := AMINAH_IN
+	flat(parent, Vector2(10, 8), o + Vector3(0, 0.01, 0), "d9b98a")
+	box(parent, Vector3(10, 3, 0.3), o + Vector3(0, 1.5, -4), "f6e3c0", true)
+	box(parent, Vector3(0.3, 3, 8), o + Vector3(-5, 1.5, 0), "f1dcb6", true)
+	box(parent, Vector3(0.3, 3, 8), o + Vector3(5, 1.5, 0), "f1dcb6", true)
+	box(parent, Vector3(4.0, 0.4, 0.3), o + Vector3(-3.0, 0.2, 4), "e8cfa6", true)
+	box(parent, Vector3(4.0, 0.4, 0.3), o + Vector3(3.0, 0.2, 4), "e8cfa6", true)
+	_wall(parent, Vector3(10, 3, 0.3), o + Vector3(0, 1.5, 4.4))
+	flat(parent, Vector2(4.2, 2.8), o + Vector3(0.4, 0.02, -1.4), "b0473a")
+	box(parent, Vector3(2.4, 0.35, 1.2), o + Vector3(0.4, 0.18, -1.4), "8a5a30", true)
+	for i in 4:
+		var px := -0.4 + i * 0.55
+		mesh_at(parent, cyl_mesh(0.2, 0.18, 0.06, 10), "fff4e1", o + Vector3(px, 0.39, -1.4))
+	mesh_at(parent, cyl_mesh(0.28, 0.22, 0.2, 10), "f6b73c", o + Vector3(0.4, 0.46, -1.4))
+	box(parent, Vector3(1.6, 2.0, 0.5), o + Vector3(-4.0, 1.0, -3.4), "7a4b2a", true)
+	for r in 3:
+		box(parent, Vector3(1.4, 0.05, 0.42), o + Vector3(-4.0, 0.6 + r * 0.5, -3.2), "a8743f")
+	box(parent, Vector3(1.2, 1.0, 0.1), o + Vector3(2.6, 1.8, -3.82), "8ec9ff")
+	box(parent, Vector3(0.15, 2.2, 0.15), o + Vector3(-0.8, 1.1, 4.0), "5b3519")
+	box(parent, Vector3(0.15, 2.2, 0.15), o + Vector3(0.8, 1.1, 4.0), "5b3519")
+
 static func bounds(parent: Node3D) -> void:
 	var h := HALF
 	for spec in [
@@ -387,5 +411,6 @@ static func build_kampung(world: Node3D) -> void:
 	_map(15, -15, 6.4, 6.4, "5aa9e6", true)
 	interior(world)
 	masjid_interior(world)
+	aminah_interior(world)
 	street_lamps(world)
 	bounds(world)

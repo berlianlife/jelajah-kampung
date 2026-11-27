@@ -218,7 +218,7 @@ func _run() -> void:
 
 	# --- journal ---
 	var j: Array = main.engine.journal_data()
-	check(j.size() == 6 and j[5]["status"] == "Terkunci" and j[4]["status"] == "Belum dimulai" and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai" and j[3]["status"] == "Selesai", "journal statuses after 3 quests")
+	check(j.size() == 7 and j[6]["status"] == "Belum dimulai" and j[5]["status"] == "Terkunci" and j[4]["status"] == "Belum dimulai" and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai" and j[3]["status"] == "Selesai", "journal statuses after 3 quests")
 	check(j[0]["lessons"][0]["unlocked"] and j[0]["lessons"][0]["title"] == "Adab Bertetangga", "journal: lesson unlocked")
 	check(main.inventory_view().is_empty(), "inventory empty after handing in items")
 	hud.toggle_journal()
@@ -397,6 +397,67 @@ func _run() -> void:
 	await frames(2)
 	if hud.learn_open():
 		main._on_action()
+	check(main.engine.current_target() == "aminah", "next offer = Bu Aminah (adab makan)")
+
+	# --- Bertamu dan Adab Makan ---
+	await goto(Vector3(-8.3, 0, 14.0))
+	main._on_action()
+	main._on_action()
+	hud._close(0)
+	await frames(2)
+	hud.advance()
+	await frames(2)
+	check(gd.quest("q.adab_makan") == 1, "adab makan invitation accepted")
+	await goto(Vector3(-10.0, 0, 11.8))
+	check(near_id() == "pintu_aminah", "Bu Aminah's door interactable")
+	main._on_action()
+	hud._close(0)
+	await frames(2)
+	check(hud.dialog_open() and gd.quest("q.adab_makan") == 1 and main.in_village(), "barging in -> reminder, stays outside")
+	hud.advance()
+	await frames(2)
+	main._on_action()
+	hud._close(1)
+	await frames(3)
+	check(gd.quest("q.adab_makan") == 2 and main.area_of(main.player.position) == "Rumah Bu Aminah", "knock + salam -> inside Bu Aminah's house")
+	await goto(Vector3(101.4, 0, -29.8))
+	check(near_id() == "aminah_home", "Bu Aminah inside interactable")
+	main._on_action()
+	var nd0: Dictionary = main.engine.resolve("aminah_home", "npcs")["node"]
+	var bad := -1
+	for i in nd0["choices"].size():
+		if not nd0["choices"][i].has("counter_add"):
+			bad = i
+	hud._close(bad)
+	await frames(2)
+	check(hud.dialog_open() and gd.counter("q.adab_makan") == 0, "wrong adab answer -> gentle hint")
+	hud.advance()
+	await frames(2)
+	main._on_action()
+	var chained := 0
+	for k in 6:
+		var nd: Dictionary = main.engine.resolve("aminah_home", "npcs")["node"]
+		var good := -1
+		for i in nd["choices"].size():
+			if nd["choices"][i].has("counter_add"):
+				good = i
+		hud._close(good)
+		await frames(2)
+		if k < 5 and hud.dialog_open():
+			chained += 1
+	check(chained == 5, "questions chain automatically after correct answers (%d/5)" % chained)
+	check(gd.quest("q.adab_makan") == 3 and gd.state["learned"].has("adab.makan_bertamu"), "adab makan complete + lesson")
+	hud.advance()
+	await frames(2)
+	if hud.learn_open():
+		main._on_action()
+	await goto(Vector3(100.0, 0, -27.0))
+	check(near_id() == "door_aminah_out", "exit door in Bu Aminah's house")
+	main._on_action()
+	await frames(2)
+	main._on_action()
+	await frames(2)
+	check(main.in_village() and not hud.is_blocking(), "back in village after pamit")
 	check(main.engine.current_target() == "", "no objective left")
 
 	# --- night behaviour ---

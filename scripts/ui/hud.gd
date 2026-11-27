@@ -556,7 +556,8 @@ func _render() -> void:
 	var last := _idx == _lines.size() - 1
 	if last and not _choices.is_empty():
 		for i in _choices.size():
-			var b := _button(str(_choices[i].get("label", "")), i == 0)
+			# Quizzes (3+ options) must not hint the answer: all buttons look the same.
+			var b := _button(str(_choices[i].get("label", "")), i == 0 and _choices.size() <= 2)
 			b.pressed.connect(_close.bind(i))
 			btn_row.add_child(b)
 	else:

@@ -8,6 +8,7 @@ const QUEST_FILES := [
 	"res://data/quests/04_lost_wallet.json",
 	"res://data/quests/05_rukun_islam.json",
 	"res://data/quests/06_rukun_iman.json",
+	"res://data/quests/07_adab_makan.json",
 ]
 const NPC_FILE := "res://data/world/npcs.json"
 const ITEM_FILE := "res://data/world/items.json"
@@ -85,6 +86,7 @@ func _ready() -> void:
 	engine.learned.connect(hud.show_learn)
 	engine.hide_requested.connect(_hide_instance)
 	engine.sfx_requested.connect(AudioManager.play)
+	engine.teleport_requested.connect(_teleport)
 
 	npc_data = _load_json(NPC_FILE)
 	item_data = _load_json(ITEM_FILE).get("items", {})
@@ -486,7 +488,7 @@ func _interact(it) -> void:
 		AudioManager.play("open")
 		hud.show_dialog(it.info_lines, [], func(_i: int): engine.apply(node, q, key))
 		return
-	_run_node(node, r["quest"], it.instance_key)
+	_run_node(node, r["quest"], it.instance_key, it)
 
 func _format_lines(lines: Array, q: Dictionary) -> Array:
 	var out: Array = []
@@ -494,7 +496,7 @@ func _format_lines(lines: Array, q: Dictionary) -> Array:
 		out.append({"who": l.get("who", ""), "text": engine.fmt(str(l.get("text", "")), q)})
 	return out
 
-func _run_node(node: Dictionary, q: Dictionary, key: String) -> void:
+func _run_node(node: Dictionary, q: Dictionary, key: String, it = null) -> void:
 	var lines: Array = node.get("lines", [])
 	var choices: Array = node.get("choices", [])
 	if lines.is_empty():
@@ -506,7 +508,9 @@ func _run_node(node: Dictionary, q: Dictionary, key: String) -> void:
 			var c: Dictionary = choices[choice_idx]
 			engine.apply(c, q, key)
 			if c.has("reply"):
-				_run_node({"lines": c["reply"]}, q, key)
+				_run_node({"lines": c["reply"]}, q, key, it)
+			elif c.get("continue", false) and it != null:
+				_interact(it)
 		else:
 			engine.apply(node, q, key)
 	)

@@ -163,6 +163,24 @@
           "text": "Assalamu'alaikum, Ahmad. Di masjid kita menjaga ketenangan, ya."
         }
       ]
+    },
+    {
+      "id": "aminah_home",
+      "name": "Bu Aminah",
+      "prompt": "Bicara dengan Bu Aminah",
+      "x": 101.4,
+      "z": -31.2,
+      "look": {
+        "robe": "7B61FF",
+        "dress": true,
+        "hijab": "5d47d6"
+      },
+      "idle": [
+        {
+          "who": "Bu Aminah",
+          "text": "Silakan duduk, Ahmad."
+        }
+      ]
     }
   ]
 }

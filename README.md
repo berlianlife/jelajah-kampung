@@ -1,6 +1,6 @@
 # Jelajah-Kampung — Godot 4 (Phase 1)
 
-Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, rumah Ahmad bisa dimasuki, minimap + penanda tujuan, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama), **Panen Tomat**, **Belajar Wudhu**, **Dompet yang Tercecer**, **Mengenal Rukun Islam**, **Mengenal Rukun Iman** (sampingan), lampu jalan & suasana malam, masjid bisa dimasuki, siklus waktu pagi-siang-sore-malam, anak-anak bermain bola, Jurnal (J), hotbar inventaris, kartu pelajaran, menu Pengaturan, SFX prosedural tanpa musik.
+Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, rumah Ahmad bisa dimasuki, minimap + penanda tujuan, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama), **Panen Tomat**, **Belajar Wudhu**, **Dompet yang Tercecer**, **Mengenal Rukun Islam**, **Mengenal Rukun Iman**, **Bertamu dan Adab Makan** (sampingan), rumah Bu Aminah bisa dimasuki, lampu jalan & suasana malam, masjid bisa dimasuki, siklus waktu pagi-siang-sore-malam, anak-anak bermain bola, Jurnal (J), hotbar inventaris, kartu pelajaran, menu Pengaturan, SFX prosedural tanpa musik.
 
 **Target MVP awal: localhost.** VPS/domain belum dipakai.
 

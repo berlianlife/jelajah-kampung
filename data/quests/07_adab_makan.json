@@ -1,0 +1,413 @@
+{
+  "quest_id": "q.adab_makan",
+  "type": "side",
+  "title": "Bertamu dan Adab Makan",
+  "requires": {
+    "q.help_neighbor": 3
+  },
+  "goal": 6,
+  "start_target": "aminah",
+  "content_status": "draft_pending_review",
+  "review_notes": "Adab bertamu dan adab makan untuk anak. Redaksi dan dalil setiap adab WAJIB diverifikasi reviewer sebelum publish. Belum ada dalil di game.",
+  "learning_objective": "Adab bertamu (izin, salam) dan adab makan",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    {
+      "text": "Ketuk pintu rumah Bu Aminah",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "pintu_aminah"
+    },
+    {
+      "text": "Makan siang bersama Bu Aminah ({n}/{goal})",
+      "done_if": {
+        "state_gte": 3
+      },
+      "target": "aminah_home"
+    }
+  ],
+  "npcs": {
+    "aminah": {
+      "0": {
+        "lines": [
+          {
+            "who": "Bu Aminah",
+            "text": "Ahmad, siang ini Ibu masak opor ayam."
+          },
+          {
+            "who": "Bu Aminah",
+            "text": "Mampir makan siang di rumah Ibu, yuk. Ibu tunggu di dalam, ya."
+          }
+        ],
+        "choices": [
+          {
+            "label": "Mau, Bu! Terima kasih.",
+            "set_state": 1,
+            "toast": "Misi sampingan: Bertamu dan Adab Makan",
+            "reply": [
+              {
+                "who": "Bu Aminah",
+                "text": "Nanti ketuk pintunya dulu, ya."
+              }
+            ]
+          },
+          {
+            "label": "Nanti dulu, Bu.",
+            "reply": [
+              {
+                "who": "Bu Aminah",
+                "text": "Iya, Nak. Kapan-kapan mampir, ya."
+              }
+            ]
+          }
+        ]
+      },
+      "1": {
+        "lines": [
+          {
+            "who": "Bu Aminah",
+            "text": "Ibu masuk dulu menyiapkan makanan. Ketuk pintunya, ya."
+          }
+        ]
+      },
+      "2": {
+        "lines": [
+          {
+            "who": "Bu Aminah",
+            "text": "Ayo masuk, makanannya sudah siap di dalam."
+          }
+        ]
+      },
+      "3": {
+        "lines": [
+          {
+            "who": "Bu Aminah",
+            "text": "Terima kasih sudah mampir tadi, Ahmad."
+          }
+        ]
+      }
+    },
+    "aminah_home": {
+      "2": [
+        {
+          "if": {
+            "counter_gte": 0,
+            "counter_lt": 1
+          },
+          "lines": [
+            {
+              "who": "Bu Aminah",
+              "text": "Makanan sudah siap. Sebelum makan, apa yang Ahmad lakukan dulu?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Mencuci tangan",
+              "counter_add": 1,
+              "sfx": "pick",
+              "continue": true,
+              "toast": "Bagus! 1 dari 6"
+            },
+            {
+              "label": "Langsung mengambil lauk",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            },
+            {
+              "label": "Duduk sambil bermain bola",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 1,
+            "counter_lt": 2
+          },
+          "lines": [
+            {
+              "who": "Bu Aminah",
+              "text": "Sebelum suapan pertama, Ahmad..."
+            }
+          ],
+          "choices": [
+            {
+              "label": "Meniup-niup makanan yang panas",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            },
+            {
+              "label": "Membaca bismillah",
+              "counter_add": 1,
+              "sfx": "pick",
+              "continue": true,
+              "toast": "Bagus! 2 dari 6"
+            },
+            {
+              "label": "Langsung makan tanpa membaca apa-apa",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 2,
+            "counter_lt": 3
+          },
+          "lines": [
+            {
+              "who": "Bu Aminah",
+              "text": "Tangan mana yang dipakai untuk makan?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Tangan kiri",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            },
+            {
+              "label": "Bebas saja, mana yang dekat",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            },
+            {
+              "label": "Tangan kanan",
+              "counter_add": 1,
+              "sfx": "pick",
+              "continue": true,
+              "toast": "Bagus! 3 dari 6"
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 3,
+            "counter_lt": 4
+          },
+          "lines": [
+            {
+              "who": "Bu Aminah",
+              "text": "Lauknya ada di beberapa piring. Ahmad mengambil yang mana?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Yang dekat dengan Ahmad",
+              "counter_add": 1,
+              "sfx": "pick",
+              "continue": true,
+              "toast": "Bagus! 4 dari 6"
+            },
+            {
+              "label": "Yang paling jauh di seberang",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            },
+            {
+              "label": "Semua dipindah ke piring Ahmad",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 4,
+            "counter_lt": 5
+          },
+          "lines": [
+            {
+              "who": "Bu Aminah",
+              "text": "Ternyata ada sayur yang kurang Ahmad suka. Apa yang Ahmad lakukan?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Menyisihkan sayur ke piring orang lain",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            },
+            {
+              "label": "Tidak mencela makanan, cukup tidak mengambilnya",
+              "counter_add": 1,
+              "sfx": "pick",
+              "continue": true,
+              "toast": "Bagus! 5 dari 6"
+            },
+            {
+              "label": "Bilang sayurnya tidak enak",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 5,
+            "counter_lt": 6
+          },
+          "lines": [
+            {
+              "who": "Bu Aminah",
+              "text": "Alhamdulillah, sudah kenyang. Selesai makan Ahmad mengucapkan apa?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Sudah, ah",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            },
+            {
+              "label": "Tidak mengucapkan apa-apa",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Hmm, coba pikirkan lagi, Nak. Bicara lagi dengan Ibu kalau sudah ingat."
+                }
+              ]
+            },
+            {
+              "label": "Alhamdulillah",
+              "counter_add": 1,
+              "sfx": "done",
+              "set_state": 3,
+              "add_sticker": 1,
+              "learn": "adab.makan_bertamu",
+              "learn_title": "Adab Bertamu dan Makan",
+              "learn_text": "Saat bertamu Ahmad mengetuk pintu dan mengucapkan salam. Saat makan ia mencuci tangan, membaca bismillah, makan dengan tangan kanan, mengambil yang dekat, tidak mencela makanan, dan mengucapkan alhamdulillah.",
+              "reply": [
+                {
+                  "who": "Bu Aminah",
+                  "text": "Masya Allah, adab makanmu bagus sekali, Ahmad. Terima kasih sudah mampir."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "3": {
+        "lines": [
+          {
+            "who": "Bu Aminah",
+            "text": "Kalau sudah, boleh pamit lewat pintu, ya. Hati-hati di jalan."
+          }
+        ]
+      }
+    }
+  },
+  "items": {
+    "pintu_aminah": {
+      "1": {
+        "lines": [
+          {
+            "who": "Ahmad",
+            "text": "Ini rumah Bu Aminah. Apa yang sebaiknya Ahmad lakukan?"
+          }
+        ],
+        "choices": [
+          {
+            "label": "Langsung membuka pintu dan masuk",
+            "reply": [
+              {
+                "who": "Ahmad",
+                "text": "Eh, sebaiknya jangan langsung masuk rumah orang. Ketuk dulu."
+              }
+            ]
+          },
+          {
+            "label": "Mengetuk pintu dan mengucapkan salam",
+            "set_state": 2,
+            "sfx": "open",
+            "teleport": {
+              "to": {
+                "x": 100.0,
+                "z": -27.2
+              },
+              "place": "Rumah Bu Aminah"
+            },
+            "toast": "Bu Aminah mempersilakan masuk"
+          },
+          {
+            "label": "Mengintip dari jendela",
+            "reply": [
+              {
+                "who": "Ahmad",
+                "text": "Mengintip rumah orang itu tidak sopan. Ketuk pintu dan ucapkan salam saja."
+              }
+            ]
+          }
+        ]
+      },
+      "3": {
+        "lines": [
+          {
+            "who": "Ahmad",
+            "text": "Assalamu'alaikum, Bu Aminah."
+          },
+          {
+            "who": "Bu Aminah",
+            "text": "Wa'alaikumussalam. Masuk, Nak."
+          }
+        ],
+        "teleport": {
+          "to": {
+            "x": 100.0,
+            "z": -27.2
+          },
+          "place": "Rumah Bu Aminah"
+        }
+      }
+    }
+  }
+}

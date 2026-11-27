@@ -4,13 +4,15 @@ extends RefCounted
 ## Node selection: state key ("0","1",...) then "default"; a key may hold a list of
 ## variants with "if" conditions (state_gte, counter_gte, counter_lt — all ANDed).
 ## Effects: set_state, counter_add, give_item, remove_item, add_sticker, hide_self,
-## learn (+learn_title/learn_text), sfx, toast ({n} = counter, {goal} = quest goal).
+## learn (+learn_title/learn_text), sfx, toast ({n} = counter, {goal} = quest goal), teleport.
+## A choice with "continue": true re-opens the same NPC/item right away (chained questions).
 
 signal changed
 signal toast_requested(text: String)
 signal learned(title: String, text: String)
 signal hide_requested(key: String)
 signal sfx_requested(name: String)
+signal teleport_requested(d: Dictionary)
 
 var quests: Array = []
 
@@ -136,6 +138,8 @@ func apply(fx: Dictionary, q: Dictionary, instance_key := "") -> void:
 	if dirty:
 		GameData.save()
 		changed.emit()
+	if fx.has("teleport"):
+		teleport_requested.emit(fx["teleport"])
 
 func _collect_learns(v: Variant, out: Dictionary) -> void:
 	if v is Dictionary:

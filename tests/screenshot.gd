@@ -6,12 +6,12 @@ func shot(name: String) -> void:
 	root.get_viewport().get_texture().get_image().save_png("/tmp/shot_%s.png" % name)
 func _run():
 	var gd = root.get_node("GameData"); gd.reset(); gd.state["settings"] = gd.default_settings()
-	gd.set_quest("q.help_neighbor", 3); gd.set_quest("q.learn_wudhu", 3); gd.set_quest("q.rukun_iman", 1)
+	gd.set_quest("q.help_neighbor", 3); gd.set_quest("q.adab_makan", 2); gd.state["time"]["hour"] = 12.0
 	var m = load("res://scenes/main.tscn").instantiate(); root.add_child(m)
-	m.player.position = Vector3(-4.6, 0, 6.2); m.rig.snap()
-	gd.state["time"]["hour"] = 10.0
-	await shot("board_day")
-	gd.state["time"]["hour"] = 21.0
-	m.player.position = Vector3(0, 0, 5.5); m.rig.snap()
-	await shot("night_lamps")
+	m._teleport({"to": {"x": 100.0, "z": -29.8}, "place": "Rumah Bu Aminah"})
+	for i in 5: await process_frame
+	m.hud.close_learn(); m.hud.advance()
+	for i in 3: await process_frame
+	m._on_action()
+	await shot("aminah")
 	quit()
