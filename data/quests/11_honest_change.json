@@ -1,0 +1,150 @@
+{
+  "quest_id": "q.honest_change",
+  "type": "side",
+  "title": "Kembalian yang Lebih",
+  "requires": {
+    "q.adab_makan": 3
+  },
+  "start_target": "aminah",
+  "content_status": "draft_pending_review",
+  "review_notes": "Konten adaptasi anak, belum ada dalil. WAJIB diverifikasi reviewer sebelum publish.",
+  "learning_objective": "Jujur dalam jual beli",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    {
+      "text": "Terima titipan belanja dari Bu Aminah",
+      "done_if": {
+        "state_gte": 1
+      },
+      "target": "aminah"
+    },
+    {
+      "text": "Beli tomat di pasar Bu Sari",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "sari"
+    },
+    {
+      "text": "Antarkan belanjaan ke Bu Aminah",
+      "done_if": {
+        "state_gte": 3
+      },
+      "target": "aminah"
+    }
+  ],
+  "npcs": {
+    "aminah": {
+      "0": {
+        "lines": [
+          {
+            "who": "Bu Aminah",
+            "text": "Ahmad, Ibu kehabisan tomat. Boleh tolong belikan di pasar Bu Sari?"
+          }
+        ],
+        "choices": [
+          {
+            "label": "Boleh, Bu!",
+            "set_state": 1,
+            "give_item": "uang",
+            "toast": "Misi sampingan: Kembalian yang Lebih",
+            "reply": [
+              {
+                "who": "Bu Aminah",
+                "text": "Ini uangnya. Hati-hati, ya."
+              }
+            ]
+          },
+          {
+            "label": "Nanti dulu, Bu.",
+            "reply": [
+              {
+                "who": "Bu Aminah",
+                "text": "Iya, Nak, kapan-kapan saja."
+              }
+            ]
+          }
+        ]
+      },
+      "1": {
+        "lines": [
+          {
+            "who": "Bu Aminah",
+            "text": "Pasar Bu Sari ada di sebelah kanan jalan, Nak."
+          }
+        ]
+      },
+      "2": {
+        "lines": [
+          {
+            "who": "Ahmad",
+            "text": "Bu, ini tomatnya. Tadi Bu Sari kelebihan memberi kembalian, sudah Ahmad kembalikan."
+          },
+          {
+            "who": "Bu Aminah",
+            "text": "Masya Allah, kamu jujur sekali, Ahmad. Terima kasih."
+          }
+        ],
+        "set_state": 3,
+        "remove_item": "belanjaan",
+        "add_sticker": 1,
+        "sfx": "done",
+        "learn": "adab.jujur_jualbeli",
+        "learn_title": "Jujur dalam Jual Beli",
+        "learn_text": "Saat kembalian yang diterima lebih dari seharusnya, Ahmad mengembalikan kelebihannya. Jujur dalam jual beli menjaga kepercayaan dan hak orang lain."
+      },
+      "3": {
+        "lines": [
+          {
+            "who": "Bu Aminah",
+            "text": "Tomatnya sudah Ibu masak. Terima kasih, Ahmad."
+          }
+        ]
+      }
+    },
+    "sari": {
+      "1": {
+        "lines": [
+          {
+            "who": "Ahmad",
+            "text": "Bu Sari, Ahmad mau beli tomat untuk Bu Aminah."
+          },
+          {
+            "who": "Bu Sari",
+            "text": "Ini tomatnya, dan ini kembaliannya."
+          },
+          {
+            "who": "Ahmad",
+            "text": "Hmm, kembaliannya sepertinya lebih banyak dari seharusnya..."
+          }
+        ],
+        "choices": [
+          {
+            "label": "\"Bu, kembaliannya kelebihan. Ini Ahmad kembalikan.\"",
+            "set_state": 2,
+            "remove_item": "uang",
+            "give_item": "belanjaan",
+            "sfx": "pick",
+            "reply": [
+              {
+                "who": "Bu Sari",
+                "text": "Masya Allah, Ibu salah hitung. Terima kasih sudah jujur, Ahmad."
+              }
+            ]
+          },
+          {
+            "label": "Diam saja, lumayan buat jajan",
+            "reply": [
+              {
+                "who": "Ahmad",
+                "text": "Eh, uang lebih itu bukan hakku. Sebaiknya kubicarakan dengan Bu Sari."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,284 @@
+{
+  "quest_id": "q.adab_masjid",
+  "type": "side",
+  "title": "Adab di Masjid",
+  "requires": {
+    "q.rukun_islam": 2
+  },
+  "start_target": "imam",
+  "content_status": "draft_pending_review",
+  "review_notes": "Konten adaptasi anak, belum ada dalil. WAJIB diverifikasi reviewer sebelum publish.",
+  "learning_objective": "Adab di masjid",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    {
+      "text": "Temui Pak Imam Yusuf",
+      "done_if": {
+        "state_gte": 1
+      },
+      "target": "imam"
+    },
+    {
+      "text": "Jawab pertanyaan adab masjid ({n}/{goal})",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "imam"
+    }
+  ],
+  "goal": 5,
+  "npcs": {
+    "imam": {
+      "0": {
+        "lines": [
+          {
+            "who": "Pak Imam Yusuf",
+            "text": "Ahmad, kamu sering ke masjid sekarang. Pak Imam senang."
+          },
+          {
+            "who": "Pak Imam Yusuf",
+            "text": "Mau belajar adab di masjid lewat beberapa pertanyaan?"
+          }
+        ],
+        "choices": [
+          {
+            "label": "Mau, Pak Imam!",
+            "set_state": 1,
+            "toast": "Misi sampingan: Adab di Masjid",
+            "reply": [
+              {
+                "who": "Pak Imam Yusuf",
+                "text": "Bagus. Bicara lagi dengan Pak Imam untuk mulai."
+              }
+            ]
+          },
+          {
+            "label": "Nanti dulu.",
+            "reply": [
+              {
+                "who": "Pak Imam Yusuf",
+                "text": "Baik, kapan-kapan saja."
+              }
+            ]
+          }
+        ]
+      },
+      "1": [
+        {
+          "if": {
+            "counter_gte": 0,
+            "counter_lt": 1
+          },
+          "lines": [
+            {
+              "who": "Pak Imam Yusuf",
+              "text": "Saat masuk masjid, kaki mana yang didahulukan?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Kaki kiri",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Hampir. Coba pikirkan lagi, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            },
+            {
+              "label": "Melompat dengan dua kaki",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Hampir. Coba pikirkan lagi, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            },
+            {
+              "label": "Kaki kanan",
+              "counter_add": 1,
+              "sfx": "pick",
+              "toast": "Bagus! 1 dari 5",
+              "continue": true
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 1,
+            "counter_lt": 2
+          },
+          "lines": [
+            {
+              "who": "Pak Imam Yusuf",
+              "text": "Di dalam masjid, sebaiknya Ahmad..."
+            }
+          ],
+          "choices": [
+            {
+              "label": "Berjalan pelan dan tenang",
+              "counter_add": 1,
+              "sfx": "pick",
+              "toast": "Bagus! 2 dari 5",
+              "continue": true
+            },
+            {
+              "label": "Berlari main kejar-kejaran",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Hampir. Coba pikirkan lagi, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            },
+            {
+              "label": "Berteriak memanggil teman",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Hampir. Coba pikirkan lagi, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 2,
+            "counter_lt": 3
+          },
+          "lines": [
+            {
+              "who": "Pak Imam Yusuf",
+              "text": "Ada orang yang sedang shalat. Ahmad..."
+            }
+          ],
+          "choices": [
+            {
+              "label": "Mengajaknya mengobrol",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Hampir. Coba pikirkan lagi, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            },
+            {
+              "label": "Tidak lewat di depannya",
+              "counter_add": 1,
+              "sfx": "pick",
+              "toast": "Bagus! 3 dari 5",
+              "continue": true
+            },
+            {
+              "label": "Lewat di depannya karena terburu-buru",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Hampir. Coba pikirkan lagi, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 3,
+            "counter_lt": 4
+          },
+          "lines": [
+            {
+              "who": "Pak Imam Yusuf",
+              "text": "Saat shalat berjamaah, shaf sebaiknya..."
+            }
+          ],
+          "choices": [
+            {
+              "label": "Renggang dan berjauhan",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Hampir. Coba pikirkan lagi, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            },
+            {
+              "label": "Bebas di mana saja",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Hampir. Coba pikirkan lagi, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            },
+            {
+              "label": "Lurus dan rapat",
+              "counter_add": 1,
+              "sfx": "pick",
+              "toast": "Bagus! 4 dari 5",
+              "continue": true
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 4,
+            "counter_lt": 5
+          },
+          "lines": [
+            {
+              "who": "Pak Imam Yusuf",
+              "text": "Sebelum ke masjid, pakaian Ahmad sebaiknya..."
+            }
+          ],
+          "choices": [
+            {
+              "label": "Bersih dan rapi",
+              "counter_add": 1,
+              "sfx": "done",
+              "set_state": 2,
+              "add_sticker": 1,
+              "learn": "adab.masjid",
+              "learn_title": "Adab di Masjid",
+              "learn_text": "Masuk dengan kaki kanan, berjalan tenang, tidak lewat di depan orang shalat, merapatkan shaf, dan berpakaian bersih saat ke masjid.",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Masya Allah, semuanya benar. Jaga adab ini setiap ke masjid, ya."
+                }
+              ]
+            },
+            {
+              "label": "Kotor bekas main lumpur",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Hampir. Coba pikirkan lagi, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            },
+            {
+              "label": "Asal pakai saja",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Hampir. Coba pikirkan lagi, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "2": {
+        "lines": [
+          {
+            "who": "Pak Imam Yusuf",
+            "text": "Sampai jumpa di shalat berjamaah, Ahmad."
+          }
+        ]
+      }
+    }
+  }
+}

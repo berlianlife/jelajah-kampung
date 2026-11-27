@@ -167,6 +167,13 @@
       "prompt": "Ke pintu rumah Bu Aminah",
       "x": -10.0,
       "z": 11.0
+    },
+    {
+      "id": "tempat_sampah",
+      "prompt": "Buang sampah",
+      "x": -2.8,
+      "z": 7.6,
+      "model": "bin"
     }
   ],
   "areas": [

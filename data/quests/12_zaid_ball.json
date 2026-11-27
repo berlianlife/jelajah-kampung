@@ -1,0 +1,134 @@
+{
+  "quest_id": "q.zaid_ball",
+  "type": "side",
+  "title": "Bola Zaid",
+  "requires": {
+    "q.harvest_tomato": 2
+  },
+  "start_target": "kid_zaid",
+  "content_status": "draft_pending_review",
+  "review_notes": "Konten adaptasi anak, belum ada dalil. WAJIB diverifikasi reviewer sebelum publish.",
+  "learning_objective": "Menolong teman",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    {
+      "text": "Dengarkan cerita Zaid",
+      "done_if": {
+        "state_gte": 1
+      },
+      "target": "kid_zaid"
+    },
+    {
+      "text": "Ambil bola di dekat kolam",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "bola_zaid"
+    },
+    {
+      "text": "Kembalikan bola ke Zaid",
+      "done_if": {
+        "state_gte": 3
+      },
+      "target": "kid_zaid"
+    }
+  ],
+  "spawn_items": [
+    {
+      "id": "bola_zaid",
+      "key": "bola_zaid_0",
+      "x": 12.8,
+      "z": -11.6,
+      "name": "Bola",
+      "prompt": "Ambil bola",
+      "model": "ball",
+      "hide_until_available": true
+    }
+  ],
+  "npcs": {
+    "kid_zaid": {
+      "0": {
+        "lines": [
+          {
+            "who": "Zaid",
+            "text": "Ahmad! Bola cadanganku tertendang jauh sampai dekat kolam."
+          },
+          {
+            "who": "Zaid",
+            "text": "Bisa bantu ambilkan? Aku takut ke dekat kolam sendirian."
+          }
+        ],
+        "choices": [
+          {
+            "label": "Ayo, aku bantu!",
+            "set_state": 1,
+            "toast": "Misi sampingan: Bola Zaid",
+            "reply": [
+              {
+                "who": "Zaid",
+                "text": "Terima kasih! Bolanya di dekat kolam, sebelah kanan masjid."
+              }
+            ]
+          },
+          {
+            "label": "Nanti dulu.",
+            "reply": [
+              {
+                "who": "Zaid",
+                "text": "Oke, nanti saja."
+              }
+            ]
+          }
+        ]
+      },
+      "1": {
+        "lines": [
+          {
+            "who": "Zaid",
+            "text": "Bolanya di dekat kolam, Ahmad."
+          }
+        ]
+      },
+      "2": {
+        "lines": [
+          {
+            "who": "Ahmad",
+            "text": "Zaid, ini bolamu."
+          },
+          {
+            "who": "Zaid",
+            "text": "Alhamdulillah, terima kasih, Ahmad! Ayo kita main bareng, gantian menendang."
+          }
+        ],
+        "set_state": 3,
+        "remove_item": "bola",
+        "add_sticker": 1,
+        "sfx": "done",
+        "learn": "adab.teman",
+        "learn_title": "Menolong dan Berbagi dengan Teman",
+        "learn_text": "Ahmad menolong Zaid mengambil bolanya, lalu mereka bermain bersama secara bergantian. Teman yang baik saling menolong dan berbagi."
+      },
+      "3": {
+        "lines": [
+          {
+            "who": "Zaid",
+            "text": "Main bola lagi, yuk!"
+          }
+        ]
+      }
+    }
+  },
+  "items": {
+    "bola_zaid": {
+      "1": {
+        "give_item": "bola",
+        "set_state": 2,
+        "hide_self": true,
+        "sfx": "pick",
+        "toast": "Bola Zaid didapat"
+      }
+    }
+  }
+}

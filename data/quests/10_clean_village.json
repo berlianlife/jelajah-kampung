@@ -1,0 +1,188 @@
+{
+  "quest_id": "q.clean_village",
+  "type": "side",
+  "title": "Kampung Bersih",
+  "requires": {
+    "q.help_neighbor": 3
+  },
+  "start_target": "pak_rt",
+  "content_status": "draft_pending_review",
+  "review_notes": "Konten adaptasi anak, belum ada dalil. WAJIB diverifikasi reviewer sebelum publish.",
+  "learning_objective": "Menjaga kebersihan lingkungan",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    {
+      "text": "Temui Pak RT Salim",
+      "done_if": {
+        "state_gte": 1
+      },
+      "target": "pak_rt"
+    },
+    {
+      "text": "Pungut sampah di kampung ({n}/{goal})",
+      "done_if": {
+        "counter_gte": 5
+      },
+      "target": "sampah"
+    },
+    {
+      "text": "Buang ke tempat sampah",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "tempat_sampah"
+    },
+    {
+      "text": "Lapor ke Pak RT Salim",
+      "done_if": {
+        "state_gte": 3
+      },
+      "target": "pak_rt"
+    }
+  ],
+  "goal": 5,
+  "spawn_items": [
+    {
+      "id": "sampah",
+      "key": "sampah_0",
+      "x": 3.6,
+      "z": 0.4,
+      "name": "Sampah",
+      "prompt": "Pungut sampah",
+      "model": "trash"
+    },
+    {
+      "id": "sampah",
+      "key": "sampah_1",
+      "x": -12.6,
+      "z": 4.6,
+      "name": "Sampah",
+      "prompt": "Pungut sampah",
+      "model": "trash"
+    },
+    {
+      "id": "sampah",
+      "key": "sampah_2",
+      "x": 12.2,
+      "z": 4.9,
+      "name": "Sampah",
+      "prompt": "Pungut sampah",
+      "model": "trash"
+    },
+    {
+      "id": "sampah",
+      "key": "sampah_3",
+      "x": -2.5,
+      "z": 11.4,
+      "name": "Sampah",
+      "prompt": "Pungut sampah",
+      "model": "trash"
+    },
+    {
+      "id": "sampah",
+      "key": "sampah_4",
+      "x": 7.2,
+      "z": -2.4,
+      "name": "Sampah",
+      "prompt": "Pungut sampah",
+      "model": "trash"
+    }
+  ],
+  "npcs": {
+    "pak_rt": {
+      "0": {
+        "lines": [
+          {
+            "who": "Pak RT Salim",
+            "text": "Assalamu'alaikum, Ahmad. Ada sampah tercecer di beberapa tempat di kampung."
+          },
+          {
+            "who": "Pak RT Salim",
+            "text": "Mau bantu Bapak memungutnya? Kampung yang bersih membuat semua warga nyaman."
+          }
+        ],
+        "choices": [
+          {
+            "label": "Siap, Pak RT!",
+            "set_state": 1,
+            "toast": "Misi sampingan: Kampung Bersih",
+            "reply": [
+              {
+                "who": "Pak RT Salim",
+                "text": "Terima kasih. Kumpulkan lima sampah, lalu buang ke tempat sampah di sebelah Bapak."
+              }
+            ]
+          },
+          {
+            "label": "Nanti dulu.",
+            "reply": [
+              {
+                "who": "Pak RT Salim",
+                "text": "Baik, Ahmad."
+              }
+            ]
+          }
+        ]
+      },
+      "1": {
+        "lines": [
+          {
+            "who": "Pak RT Salim",
+            "text": "Sudah {n} sampah terkumpul. Ikuti panah kuning, ya."
+          }
+        ]
+      },
+      "2": {
+        "lines": [
+          {
+            "who": "Ahmad",
+            "text": "Pak RT, sampahnya sudah Ahmad buang ke tempat sampah."
+          },
+          {
+            "who": "Pak RT Salim",
+            "text": "Alhamdulillah, kampung kita jadi bersih. Terima kasih, Ahmad."
+          }
+        ],
+        "set_state": 3,
+        "add_sticker": 1,
+        "sfx": "done",
+        "learn": "adab.kebersihan",
+        "learn_title": "Menjaga Kebersihan",
+        "learn_text": "Ahmad memungut sampah dan membuangnya ke tempatnya. Menjaga kebersihan lingkungan membuat kampung nyaman untuk semua."
+      },
+      "3": {
+        "lines": [
+          {
+            "who": "Pak RT Salim",
+            "text": "Kampung bersih, warga senang."
+          }
+        ]
+      }
+    }
+  },
+  "items": {
+    "sampah": {
+      "1": {
+        "if": {
+          "counter_lt": 5
+        },
+        "counter_add": 1,
+        "hide_self": true,
+        "sfx": "pick",
+        "toast": "Sampah {n}/{goal}"
+      }
+    },
+    "tempat_sampah": {
+      "1": {
+        "if": {
+          "counter_gte": 5
+        },
+        "set_state": 2,
+        "sfx": "pick",
+        "toast": "Sampah sudah dibuang ke tempatnya"
+      }
+    }
+  }
+}

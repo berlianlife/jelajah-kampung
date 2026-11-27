@@ -1,0 +1,193 @@
+{
+  "quest_id": "q.help_mother",
+  "type": "side",
+  "title": "Membantu Ibu",
+  "requires": {
+    "q.help_neighbor": 3
+  },
+  "start_target": "ibu",
+  "content_status": "draft_pending_review",
+  "review_notes": "Konten adaptasi anak, belum ada dalil. WAJIB diverifikasi reviewer sebelum publish.",
+  "learning_objective": "Berbakti kepada orang tua: membantu dan menjawab panggilan dengan sopan",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    {
+      "text": "Temui Ibu di rumah",
+      "done_if": {
+        "state_gte": 1
+      },
+      "target": "ibu"
+    },
+    {
+      "text": "Rapikan mainan di kamar ({n}/{goal})",
+      "done_if": {
+        "counter_gte": 3
+      },
+      "target": "mainan"
+    },
+    {
+      "text": "Lapor ke Ibu",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "ibu"
+    }
+  ],
+  "goal": 3,
+  "spawn_items": [
+    {
+      "id": "mainan",
+      "key": "mainan_0",
+      "x": 96.6,
+      "z": 2.2,
+      "name": "Mainan",
+      "prompt": "Rapikan mainan",
+      "model": "toy",
+      "color": "F6B73C"
+    },
+    {
+      "id": "mainan",
+      "key": "mainan_1",
+      "x": 103.6,
+      "z": 1.9,
+      "name": "Mainan",
+      "prompt": "Rapikan mainan",
+      "model": "toy",
+      "color": "7B61FF"
+    },
+    {
+      "id": "mainan",
+      "key": "mainan_2",
+      "x": 99.6,
+      "z": -2.5,
+      "name": "Mainan",
+      "prompt": "Rapikan mainan",
+      "model": "toy",
+      "color": "22A061"
+    }
+  ],
+  "npcs": {
+    "ibu": {
+      "0": {
+        "lines": [
+          {
+            "who": "Ibu",
+            "text": "Ahmad, kamarmu berantakan. Mainannya tersebar di lantai."
+          },
+          {
+            "who": "Ibu",
+            "text": "Bisa bantu Ibu merapikan tiga mainan itu?"
+          }
+        ],
+        "choices": [
+          {
+            "label": "Iya, Bu. Ahmad rapikan.",
+            "set_state": 1,
+            "toast": "Misi sampingan: Membantu Ibu",
+            "reply": [
+              {
+                "who": "Ibu",
+                "text": "Terima kasih, Nak. Mainannya ada di lantai kamar."
+              }
+            ]
+          },
+          {
+            "label": "Nanti dulu.",
+            "reply": [
+              {
+                "who": "Ibu",
+                "text": "Baik, tapi jangan lama-lama, ya."
+              }
+            ]
+          }
+        ]
+      },
+      "1": [
+        {
+          "if": {
+            "counter_lt": 3
+          },
+          "lines": [
+            {
+              "who": "Ibu",
+              "text": "Masih ada mainan di lantai, Ahmad. Sudah {n} yang dirapikan."
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 3
+          },
+          "lines": [
+            {
+              "who": "Ahmad",
+              "text": "Bu, mainannya sudah rapi semua."
+            },
+            {
+              "who": "Ibu",
+              "text": "Masya Allah, terima kasih. Ibu mau tanya: kalau Ibu memanggil saat Ahmad sedang bermain, Ahmad menjawab apa?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Diam saja, pura-pura tidak dengar",
+              "reply": [
+                {
+                  "who": "Ibu",
+                  "text": "Kalau diam, Ibu jadi sedih. Coba pikirkan jawaban yang lebih baik, lalu bicara lagi dengan Ibu."
+                }
+              ]
+            },
+            {
+              "label": "\"Iya, Bu. Ahmad segera ke sana.\"",
+              "set_state": 2,
+              "add_sticker": 1,
+              "sfx": "done",
+              "learn": "adab.orang_tua",
+              "learn_title": "Berbakti kepada Orang Tua",
+              "learn_text": "Ahmad membantu Ibu merapikan kamar dan menjawab panggilan Ibu dengan sopan. Membantu dan berkata lembut kepada orang tua termasuk berbakti.",
+              "reply": [
+                {
+                  "who": "Ibu",
+                  "text": "Jawaban yang sopan. Ibu senang punya anak seperti Ahmad."
+                }
+              ]
+            },
+            {
+              "label": "\"Nanti saja, Bu!\"",
+              "reply": [
+                {
+                  "who": "Ibu",
+                  "text": "Hmm, jawaban itu kurang sopan. Coba pikirkan lagi, lalu bicara lagi dengan Ibu."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "2": {
+        "lines": [
+          {
+            "who": "Ibu",
+            "text": "Kamarnya jadi nyaman. Terima kasih, Ahmad."
+          }
+        ]
+      }
+    }
+  },
+  "items": {
+    "mainan": {
+      "1": {
+        "if": {
+          "counter_lt": 3
+        },
+        "counter_add": 1,
+        "hide_self": true,
+        "sfx": "pick",
+        "toast": "Mainan dirapikan {n}/{goal}"
+      }
+    }
+  }
+}

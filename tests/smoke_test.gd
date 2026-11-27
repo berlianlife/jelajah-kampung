@@ -28,6 +28,92 @@ func goto(p: Vector3) -> void:
 func near_id() -> String:
 	return main.near.instance_key if main.near != null else ""
 
+
+# ---------- autoplay helpers (data-driven quest solver) ----------
+func _usable(it) -> bool:
+	if it.hidden or it.asleep:
+		return false
+	if it.is_npc or it.portal_to != null or not it.lines.is_empty():
+		return true
+	return not main.engine.resolve(it.interact_id, "items").is_empty()
+
+func find_target_it(id: String):
+	var best = null
+	var bd := INF
+	for it in main.interactables:
+		if it.interact_id != id or not _usable(it):
+			continue
+		var d: float = it.global_position.distance_to(main.player.global_position)
+		if main.area_of(it.global_position) != main.area_of(main.player.global_position):
+			d += 1000.0
+		if d < bd:
+			bd = d
+			best = it
+	return best
+
+func route(it):
+	var here: String = main.area_of(main.player.global_position)
+	var there: String = main.area_of(it.global_position)
+	if here == there:
+		return it
+	for door in main.interactables:
+		if door.portal_to == null:
+			continue
+		var to: Dictionary = door.portal_to["to"]
+		var dest: String = main.area_of(Vector3(float(to["x"]), 0, float(to["z"])))
+		if main.area_of(door.global_position) == here and (dest == there or here != "Kampung Muslim"):
+			return door
+	return it
+
+func approach(it) -> bool:
+	for off in [Vector3(0, 0, 1.0), Vector3(0, 0, -1.0), Vector3(1.0, 0, 0), Vector3(-1.0, 0, 0), Vector3(0, 0, 1.6), Vector3(0, 0, 0.5)]:
+		await goto(it.global_position + off)
+		if main.near == it:
+			return true
+	return false
+
+func good_choice(choices: Array) -> int:
+	for i in choices.size():
+		for k in choices[i].keys():
+			if k != "label" and k != "reply":
+				return i
+	return 0
+
+func finish_dialogs() -> void:
+	var hud = main.hud
+	for guard in 60:
+		if hud.learn_open():
+			hud.close_learn()
+		elif hud.dialog_open():
+			if hud._idx == hud._lines.size() - 1 and not hud._choices.is_empty():
+				hud._close(good_choice(hud._choices))
+			else:
+				hud.advance()
+		else:
+			return
+		await frames(2)
+
+func autoplay(qid: String) -> bool:
+	var gd = root.get_node("GameData")
+	var q: Dictionary = main.engine.quest_by_id(qid)
+	var giver: String = q.get("start_target", q["steps"][0]["target"])
+	for step in 50:
+		if main.engine.is_complete(q):
+			return true
+		var id: String = giver if gd.quest(qid) == 0 else main.engine.current_target()
+		var it = find_target_it(id)
+		if it == null:
+			print("  autoplay %s: no usable target '%s'" % [qid, id])
+			return false
+		var go = route(it)
+		if not await approach(go):
+			print("  autoplay %s: cannot reach %s" % [qid, go.instance_key])
+			return false
+		main._on_action()
+		await frames(2)
+		await finish_dialogs()
+	return main.engine.is_complete(q)
+
 func _run() -> void:
 	var gd = root.get_node("GameData")
 	gd.reset()
@@ -218,7 +304,7 @@ func _run() -> void:
 
 	# --- journal ---
 	var j: Array = main.engine.journal_data()
-	check(j.size() == 7 and j[6]["status"] == "Belum dimulai" and j[5]["status"] == "Terkunci" and j[4]["status"] == "Belum dimulai" and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai" and j[3]["status"] == "Selesai", "journal statuses after 3 quests")
+	check(j.size() == 12 and j[6]["status"] == "Belum dimulai" and j[5]["status"] == "Terkunci" and j[4]["status"] == "Belum dimulai" and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai" and j[3]["status"] == "Selesai", "journal statuses after 3 quests")
 	check(j[0]["lessons"][0]["unlocked"] and j[0]["lessons"][0]["title"] == "Adab Bertetangga", "journal: lesson unlocked")
 	check(main.inventory_view().is_empty(), "inventory empty after handing in items")
 	hud.toggle_journal()
@@ -458,6 +544,17 @@ func _run() -> void:
 	main._on_action()
 	await frames(2)
 	check(main.in_village() and not hud.is_blocking(), "back in village after pamit")
+
+	# --- v0.9 batch: autoplay each new quest end-to-end ---
+	for qid in ["q.help_mother", "q.adab_masjid", "q.clean_village", "q.honest_change", "q.zaid_ball"]:
+		var ok: bool = await autoplay(qid)
+		check(ok, "autoplay completes %s" % qid)
+	for lid in ["adab.orang_tua", "adab.masjid", "adab.kebersihan", "adab.jujur_jualbeli", "adab.teman"]:
+		check(gd.state["learned"].has(lid), "lesson unlocked: %s" % lid)
+	check(main.inventory_view().is_empty(), "no leftover quest items in inventory")
+	await finish_dialogs()
+	if not main.in_village():
+		await goto(Vector3(-10, 0, 0.4))
 	check(main.engine.current_target() == "", "no objective left")
 
 	# --- night behaviour ---

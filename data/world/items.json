@@ -15,6 +15,21 @@
       "name": "Dompet",
       "color": "8a5a30",
       "short": "Dompet"
+    },
+    "uang": {
+      "name": "Uang belanja",
+      "color": "22A061",
+      "short": "Uang"
+    },
+    "belanjaan": {
+      "name": "Tomat belanjaan",
+      "color": "e2463a",
+      "short": "Tomat"
+    },
+    "bola": {
+      "name": "Bola Zaid",
+      "color": "ffffff",
+      "short": "Bola"
     }
   }
 }

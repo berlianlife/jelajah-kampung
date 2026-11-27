@@ -181,6 +181,42 @@
           "text": "Silakan duduk, Ahmad."
         }
       ]
+    },
+    {
+      "id": "ibu",
+      "name": "Ibu",
+      "prompt": "Bicara dengan Ibu",
+      "x": 101.4,
+      "z": 0.9,
+      "look": {
+        "robe": "1e7a4f",
+        "dress": true,
+        "hijab": "0f5132"
+      },
+      "idle": [
+        {
+          "who": "Ibu",
+          "text": "Ahmad, jangan lupa membantu warga, ya."
+        }
+      ]
+    },
+    {
+      "id": "pak_rt",
+      "name": "Pak RT Salim",
+      "prompt": "Bicara dengan Pak RT",
+      "x": -4.2,
+      "z": 8.6,
+      "look": {
+        "robe": "8a9a5b",
+        "pants": "4b5a6a",
+        "peci": "2b2418"
+      },
+      "idle": [
+        {
+          "who": "Pak RT Salim",
+          "text": "Assalamu'alaikum, Ahmad. Semoga kampung kita selalu rukun."
+        }
+      ]
     }
   ]
 }

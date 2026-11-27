@@ -9,6 +9,11 @@ const QUEST_FILES := [
 	"res://data/quests/05_rukun_islam.json",
 	"res://data/quests/06_rukun_iman.json",
 	"res://data/quests/07_adab_makan.json",
+	"res://data/quests/08_help_mother.json",
+	"res://data/quests/09_adab_masjid.json",
+	"res://data/quests/10_clean_village.json",
+	"res://data/quests/11_honest_change.json",
+	"res://data/quests/12_zaid_ball.json",
 ]
 const NPC_FILE := "res://data/world/npcs.json"
 const ITEM_FILE := "res://data/world/items.json"
@@ -190,6 +195,25 @@ func _spawn_interactables(world: Node3D) -> void:
 				WorldBuilder.box(bp, Vector3(0.74, 0.44, 0.02), Vector3(0, 1.4, 0.05), "fff4e1")
 				WorldBuilder.box(bp, Vector3(0.5, 0.06, 0.01), Vector3(0, 1.48, 0.065), "1e7a4f")
 				WorldBuilder.box(bp, Vector3(0.6, 0.04, 0.01), Vector3(0, 1.36, 0.065), "7a4b2a")
+			elif s.get("model", "tomato") == "toy":
+				var tb := BoxMesh.new()
+				tb.size = Vector3(0.32, 0.32, 0.32)
+				item.pickup = WorldBuilder.mesh_at(item, tb, str(s.get("color", "F6B73C")), Vector3(0, 0.16, 0))
+				item.pickup.rotation.y = 0.5
+			elif s.get("model", "tomato") == "trash":
+				var tr := SphereMesh.new()
+				tr.radius = 0.16
+				tr.height = 0.24
+				tr.radial_segments = 5
+				tr.rings = 2
+				item.pickup = WorldBuilder.mesh_at(item, tr, "9a9a8a", Vector3(0, 0.1, 0))
+			elif s.get("model", "tomato") == "ball":
+				var bb := SphereMesh.new()
+				bb.radius = 0.2
+				bb.height = 0.4
+				bb.radial_segments = 8
+				bb.rings = 4
+				item.pickup = WorldBuilder.mesh_at(item, bb, "ffffff", Vector3(0, 0.2, 0))
 			elif s.get("model", "tomato") == "card":
 				var cb := BoxMesh.new()
 				cb.size = Vector3(0.5, 0.7, 0.06)
@@ -233,6 +257,10 @@ func _spawn_interactables(world: Node3D) -> void:
 		spot.position = Vector3(float(sp["x"]), 0, float(sp["z"]))
 		world.add_child(spot)
 		interactables.append(spot)
+		if sp.get("model", "") == "bin":
+			WorldBuilder.mesh_at(spot, WorldBuilder.cyl_mesh(0.3, 0.26, 0.7, 10), "1e7a4f", Vector3(0, 0.35, 0))
+			WorldBuilder.mesh_at(spot, WorldBuilder.cyl_mesh(0.33, 0.33, 0.06, 10), "0f5132", Vector3(0, 0.72, 0))
+			WorldBuilder.solid_cylinder(world, 0.3, 0.8, spot.position)
 
 	for it in interactables:
 		if GameData.state["hidden"].has(it.instance_key):

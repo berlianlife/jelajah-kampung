@@ -404,6 +404,13 @@ func set_quests(rows: Array) -> void:
 				out += "[color=#1e7a4f][b]%s: %s[/b] (selesai)[/color]\n" % [tag, q["title"]]
 			continue
 		out += "[b]%s: %s[/b]\n" % [tag, q["title"]]
+		if q["type"] != "main":
+			# Side quests: only the active step keeps the panel short.
+			for st in q["steps"]:
+				if not st["done"]:
+					out += "[color=#0F5132]» %s[/color]\n" % st["text"]
+					break
+			continue
 		var current_marked := false
 		for s in q["steps"]:
 			if s["done"]:

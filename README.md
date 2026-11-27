@@ -1,6 +1,6 @@
 # Jelajah-Kampung — Godot 4 (Phase 1)
 
-Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, rumah Ahmad bisa dimasuki, minimap + penanda tujuan, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama), **Panen Tomat**, **Belajar Wudhu**, **Dompet yang Tercecer**, **Mengenal Rukun Islam**, **Mengenal Rukun Iman**, **Bertamu dan Adab Makan** (sampingan), rumah Bu Aminah bisa dimasuki, lampu jalan & suasana malam, masjid bisa dimasuki, siklus waktu pagi-siang-sore-malam, anak-anak bermain bola, Jurnal (J), hotbar inventaris, kartu pelajaran, menu Pengaturan, SFX prosedural tanpa musik.
+Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, rumah Ahmad bisa dimasuki, minimap + penanda tujuan, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama), **Panen Tomat**, **Belajar Wudhu**, **Dompet yang Tercecer**, **Mengenal Rukun Islam**, **Mengenal Rukun Iman**, **Bertamu dan Adab Makan**, **Membantu Ibu**, **Adab di Masjid**, **Kampung Bersih**, **Kembalian yang Lebih**, **Bola Zaid** (sampingan), rumah Bu Aminah bisa dimasuki, lampu jalan & suasana malam, masjid bisa dimasuki, siklus waktu pagi-siang-sore-malam, anak-anak bermain bola, Jurnal (J), hotbar inventaris, kartu pelajaran, menu Pengaturan, SFX prosedural tanpa musik.
 
 **Target MVP awal: localhost.** VPS/domain belum dipakai.
 
@@ -54,7 +54,8 @@ scripts/ui/minimap.gd            # minimap bulat + titik tujuan
 scripts/quest/quest_engine.gd    # runner quest data-driven
 scripts/audio/audio_manager.gd   # autoload: bus Voice/Ambience/SFX, SFX sintetis
 tools/serve_web.py               # server localhost untuk Web export
-tests/smoke_test.gd              # godot --headless --path . -s res://tests/smoke_test.gd
+tests/smoke_test.gd              # godot --headless --path . -s res://tests/smoke_test.gd (termasuk autoplay semua misi)
+tools/gen_batch_v09.py           # generator data misi v0.9 (contoh cara menambah banyak misi sekaligus)
 export_presets.cfg               # preset Web (Thread Support OFF)
 ```
 
