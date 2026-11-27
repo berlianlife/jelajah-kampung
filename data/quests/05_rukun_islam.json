@@ -1,0 +1,238 @@
+{
+  "quest_id": "q.rukun_islam",
+  "type": "side",
+  "title": "Mengenal Rukun Islam",
+  "requires": {
+    "q.help_neighbor": 3
+  },
+  "goal": 5,
+  "start_target": "imam",
+  "content_status": "draft_pending_review",
+  "review_notes": "Teks kartu adalah ringkasan untuk anak. Redaksi syahadat dan dalil (hadits Jibril) WAJIB diverifikasi reviewer sebelum publish. Belum ada kutipan dalil di game.",
+  "learning_objective": "Mengenal lima Rukun Islam dan urutannya",
+  "target_age": "5-12",
+  "reviewer": null,
+  "version": 1,
+  "steps": [
+    {
+      "text": "Temui Pak Imam Yusuf di dalam masjid",
+      "done_if": {
+        "state_gte": 1
+      },
+      "target": "imam"
+    },
+    {
+      "text": "Baca kartu Rukun Islam ({n}/{goal})",
+      "done_if": {
+        "counter_gte": 5
+      },
+      "target": "kartu_rukun"
+    },
+    {
+      "text": "Jawab pertanyaan Pak Imam",
+      "done_if": {
+        "state_gte": 2
+      },
+      "target": "imam"
+    }
+  ],
+  "spawn_items": [
+    {
+      "id": "kartu_rukun",
+      "key": "kartu_rukun_1",
+      "x": 95.6,
+      "z": 26.6,
+      "name": "Kartu Rukun Islam",
+      "prompt": "Baca kartu",
+      "model": "card",
+      "info": [
+        {
+          "who": "Kartu",
+          "text": "Rukun Islam pertama: bersyahadat, bersaksi bahwa tidak ada ilah yang berhak disembah dengan benar selain Allah, dan Muhammad adalah utusan Allah."
+        }
+      ]
+    },
+    {
+      "id": "kartu_rukun",
+      "key": "kartu_rukun_2",
+      "x": 104.4,
+      "z": 26.8,
+      "name": "Kartu Rukun Islam",
+      "prompt": "Baca kartu",
+      "model": "card",
+      "info": [
+        {
+          "who": "Kartu",
+          "text": "Rukun Islam kedua: mendirikan shalat."
+        }
+      ]
+    },
+    {
+      "id": "kartu_rukun",
+      "key": "kartu_rukun_3",
+      "x": 95.2,
+      "z": 31.4,
+      "name": "Kartu Rukun Islam",
+      "prompt": "Baca kartu",
+      "model": "card",
+      "info": [
+        {
+          "who": "Kartu",
+          "text": "Rukun Islam ketiga: menunaikan zakat."
+        }
+      ]
+    },
+    {
+      "id": "kartu_rukun",
+      "key": "kartu_rukun_4",
+      "x": 104.8,
+      "z": 31.0,
+      "name": "Kartu Rukun Islam",
+      "prompt": "Baca kartu",
+      "model": "card",
+      "info": [
+        {
+          "who": "Kartu",
+          "text": "Rukun Islam keempat: berpuasa di bulan Ramadan."
+        }
+      ]
+    },
+    {
+      "id": "kartu_rukun",
+      "key": "kartu_rukun_5",
+      "x": 100.0,
+      "z": 30.6,
+      "name": "Kartu Rukun Islam",
+      "prompt": "Baca kartu",
+      "model": "card",
+      "info": [
+        {
+          "who": "Kartu",
+          "text": "Rukun Islam kelima: berhaji ke Baitullah bagi yang mampu."
+        }
+      ]
+    }
+  ],
+  "npcs": {
+    "imam": {
+      "0": {
+        "lines": [
+          {
+            "who": "Pak Imam Yusuf",
+            "text": "Assalamu'alaikum, Ahmad. Senang melihatmu di masjid."
+          },
+          {
+            "who": "Pak Imam Yusuf",
+            "text": "Di masjid ini ada lima kartu tentang Rukun Islam. Mau mencari dan membacanya?"
+          }
+        ],
+        "choices": [
+          {
+            "label": "Mau, Pak Imam!",
+            "set_state": 1,
+            "toast": "Misi sampingan: Mengenal Rukun Islam",
+            "reply": [
+              {
+                "who": "Pak Imam Yusuf",
+                "text": "Cari di sekitar ruangan, ya. Berjalan pelan-pelan, jangan berlari di masjid."
+              }
+            ]
+          },
+          {
+            "label": "Nanti dulu, Pak.",
+            "reply": [
+              {
+                "who": "Pak Imam Yusuf",
+                "text": "Baik, Ahmad. Pak Imam ada di sini."
+              }
+            ]
+          }
+        ]
+      },
+      "1": [
+        {
+          "if": {
+            "counter_lt": 5
+          },
+          "lines": [
+            {
+              "who": "Pak Imam Yusuf",
+              "text": "Sudah {n} kartu yang kamu baca. Masih ada yang belum, coba cari lagi."
+            }
+          ]
+        },
+        {
+          "if": {
+            "counter_gte": 5
+          },
+          "lines": [
+            {
+              "who": "Ahmad",
+              "text": "Pak Imam, kelima kartunya sudah Ahmad baca."
+            },
+            {
+              "who": "Pak Imam Yusuf",
+              "text": "Bagus. Pak Imam mau tanya: Rukun Islam yang kedua apa, Ahmad?"
+            }
+          ],
+          "choices": [
+            {
+              "label": "Berpuasa di bulan Ramadan",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Itu Rukun Islam keempat. Coba ingat kartu yang kedua, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            },
+            {
+              "label": "Mendirikan shalat",
+              "set_state": 2,
+              "add_sticker": 1,
+              "sfx": "done",
+              "learn": "aqidah.rukun_islam",
+              "learn_title": "Lima Rukun Islam",
+              "learn_text": "Rukun Islam ada lima: bersyahadat, mendirikan shalat, menunaikan zakat, berpuasa di bulan Ramadan, dan berhaji ke Baitullah bagi yang mampu.",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Masya Allah, benar. Shalat adalah Rukun Islam yang kedua."
+                }
+              ]
+            },
+            {
+              "label": "Menunaikan zakat",
+              "reply": [
+                {
+                  "who": "Pak Imam Yusuf",
+                  "text": "Itu Rukun Islam ketiga. Coba ingat kartu yang kedua, lalu bicara lagi dengan Pak Imam."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "2": {
+        "lines": [
+          {
+            "who": "Pak Imam Yusuf",
+            "text": "Semoga Allah memudahkan kita mengamalkan Rukun Islam, Ahmad."
+          }
+        ]
+      }
+    }
+  },
+  "items": {
+    "kartu_rukun": {
+      "1": {
+        "if": {
+          "counter_lt": 5
+        },
+        "counter_add": 1,
+        "hide_self": true,
+        "sfx": "pick",
+        "toast": "Kartu Rukun Islam {n}/{goal}"
+      }
+    }
+  }
+}

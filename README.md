@@ -1,6 +1,6 @@
 # Jelajah-Kampung — Godot 4 (Phase 1)
 
-Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, rumah Ahmad bisa dimasuki, minimap + penanda tujuan, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama), **Panen Tomat**, **Belajar Wudhu**, **Dompet yang Tercecer** (sampingan), siklus waktu pagi-siang-sore-malam, anak-anak bermain bola, Jurnal (J), hotbar inventaris, kartu pelajaran, menu Pengaturan, SFX prosedural tanpa musik.
+Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (Perspective 60°), gerak 8 arah, collision, kampung + kebun berpagar, rumah Ahmad bisa dimasuki, minimap + penanda tujuan, 5 NPC, quest engine data-driven: **Membantu Tetangga** (utama), **Panen Tomat**, **Belajar Wudhu**, **Dompet yang Tercecer**, **Mengenal Rukun Islam** (sampingan), masjid bisa dimasuki, siklus waktu pagi-siang-sore-malam, anak-anak bermain bola, Jurnal (J), hotbar inventaris, kartu pelajaran, menu Pengaturan, SFX prosedural tanpa musik.
 
 **Target MVP awal: localhost.** VPS/domain belum dipakai.
 
@@ -15,7 +15,7 @@ Petualangan Kebaikan. Vertical slice: karakter faceless, kamera three-quarter (P
 2. Godot → Import → pilih `project.godot`.
 3. Tekan F5.
 
-Kontrol: WASD/panah jalan, E/Spasi bicara/ambil, Esc pengaturan. Di layar sentuh muncul joystick dan tombol Aksi.
+Kontrol: WASD/panah jalan, E/Spasi bicara/ambil, J jurnal, Esc pengaturan. HP: joystick + tombol Aksi (UI otomatis menyesuaikan portrait/landscape). Uji touch di desktop: jalankan dengan `-- --touch`. Di layar sentuh muncul joystick dan tombol Aksi.
 
 ## Jalankan di browser (localhost) — paling cepat
 Build sudah ada: `python3 tools/serve_web.py` → buka http://localhost:8060

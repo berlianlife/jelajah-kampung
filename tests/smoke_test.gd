@@ -215,7 +215,7 @@ func _run() -> void:
 
 	# --- journal ---
 	var j: Array = main.engine.journal_data()
-	check(j.size() == 4 and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai" and j[3]["status"] == "Selesai", "journal statuses after 3 quests")
+	check(j.size() == 5 and j[4]["status"] == "Belum dimulai" and j[0]["status"] == "Selesai" and j[1]["status"] == "Selesai" and j[2]["status"] == "Belum dimulai" and j[3]["status"] == "Selesai", "journal statuses after 3 quests")
 	check(j[0]["lessons"][0]["unlocked"] and j[0]["lessons"][0]["title"] == "Adab Bertetangga", "journal: lesson unlocked")
 	check(main.inventory_view().is_empty(), "inventory empty after handing in items")
 	hud.toggle_journal()
@@ -289,7 +289,76 @@ func _run() -> void:
 	check(gd.quest("q.learn_wudhu") == 3 and gd.state["learned"].has("ibadah.wudhu"), "Belajar Wudhu complete + lesson")
 	check(hud.learn_open(), "wudhu learning card shown")
 	main._on_action()
+	check(main.engine.current_target() == "imam", "next offer = Pak Imam (inside masjid)")
+	await goto(Vector3(4, 0, -6))
+	var door_pos = main.target_position()
+	check(door_pos != null and door_pos.distance_to(Vector3(0, 0, -9.4)) < 0.1, "arrow routes to masjid door when target is inside")
+
+	# --- masjid + Mengenal Rukun Islam ---
+	await goto(Vector3(0, 0, -8.6))
+	check(near_id() == "door_masjid", "masjid door interactable")
+	main._on_action()
+	await frames(2)
+	check(main.area_of(main.player.position) == "Masjid" and hud.dialog_open(), "entered masjid with adab line")
+	main._on_action()
+	await frames(2)
+	check(not hud.minimap.visible and hud.place_label.text == "Masjid", "place label = Masjid, minimap hidden")
+	await goto(Vector3(101.8, 0, 28.8))
+	check(near_id() == "imam", "Pak Imam interactable")
+	main._on_action()
+	main._on_action()
+	hud._close(0)
+	await frames(2)
+	hud.advance()
+	await frames(2)
+	check(gd.quest("q.rukun_islam") == 1, "Rukun Islam accepted")
+	var card_keys := ["kartu_rukun_1", "kartu_rukun_2", "kartu_rukun_3", "kartu_rukun_4", "kartu_rukun_5"]
+	var read := 0
+	for key in card_keys:
+		var card = null
+		for it in main.interactables:
+			if it.instance_key == key:
+				card = it
+		await goto(card.position + Vector3(0, 0, 0.9))
+		if near_id() == key:
+			main._on_action()
+			var shown: bool = hud.dialog_open() and hud.text_label.text.begins_with("Rukun Islam")
+			main._on_action()
+			await frames(2)
+			if shown:
+				read += 1
+	check(read == 5 and gd.counter("q.rukun_islam") == 5, "5 Rukun Islam cards read (read=%d)" % read)
+	await goto(Vector3(101.8, 0, 28.8))
+	main._on_action()
+	main._on_action()
+	hud._close(0)
+	await frames(2)
+	check(hud.dialog_open() and gd.quest("q.rukun_islam") == 1, "wrong quiz answer -> hint, still state 1")
+	hud.advance()
+	await frames(2)
+	main._on_action()
+	main._on_action()
+	hud._close(1)
+	await frames(2)
+	check(gd.quest("q.rukun_islam") == 2 and gd.state["learned"].has("aqidah.rukun_islam"), "correct answer -> quest done + lesson")
+	hud.advance()
+	await frames(2)
+	if hud.learn_open():
+		main._on_action()
+	await goto(Vector3(100, 0, 33.9))
+	check(near_id() == "door_masjid_out", "masjid exit door")
+	main._on_action()
+	await frames(2)
+	check(main.in_village(), "back in village")
 	check(main.engine.current_target() == "", "no objective left")
+
+	# --- portrait phone layout ---
+	main.get_window().size = Vector2i(400, 800)
+	main._fit_ui()
+	check(main.get_window().content_scale_size == Vector2i(720, 1280), "portrait uses 720x1280 UI base")
+	main.get_window().size = Vector2i(1280, 720)
+	main._fit_ui()
+	check(main.get_window().content_scale_size == Vector2i(1280, 720), "landscape uses 1280x720 UI base")
 
 	# --- settings ---
 	hud.toggle_settings()

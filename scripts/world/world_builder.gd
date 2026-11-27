@@ -72,6 +72,7 @@ static var fade_targets: Array = []
 static var map_shapes: Array = []
 ## Interior origin (Ahmad's room) — far outside the village bounds.
 const INTERIOR := Vector3(100, 0, 0)
+const MASJID_IN := Vector3(100, 0, 30)
 
 static func _map(x: float, z: float, w: float, d: float, color: String, round := false) -> void:
 	map_shapes.append({"x": x, "z": z, "w": w, "d": d, "color": color, "round": round})
@@ -249,6 +250,37 @@ static func interior(parent: Node3D) -> void:
 	box(parent, Vector3(0.15, 2.2, 0.15), o + Vector3(-0.8, 1.1, 3.5), "5b3519")
 	box(parent, Vector3(0.15, 2.2, 0.15), o + Vector3(0.8, 1.1, 3.5), "5b3519")
 
+## Prayer hall, built at MASJID_IN (14 x 10). Mihrab on the north wall, saf lines on the carpet.
+static func masjid_interior(parent: Node3D) -> void:
+	var o := MASJID_IN
+	flat(parent, Vector2(14, 10), o + Vector3(0, 0.01, 0), "1f7a52")
+	for i in 5:
+		flat(parent, Vector2(13, 0.08), o + Vector3(0, 0.015, -3.2 + i * 1.5), "e8d9a8")
+	box(parent, Vector3(14, 4, 0.3), o + Vector3(0, 2, -5), "f6efdf", true)
+	box(parent, Vector3(0.3, 4, 10), o + Vector3(-7, 2, 0), "f1e8d4", true)
+	box(parent, Vector3(0.3, 4, 10), o + Vector3(7, 2, 0), "f1e8d4", true)
+	box(parent, Vector3(5.8, 0.4, 0.3), o + Vector3(-4.1, 0.2, 5), "e3d7bd", true)
+	box(parent, Vector3(5.8, 0.4, 0.3), o + Vector3(4.1, 0.2, 5), "e3d7bd", true)
+	_wall(parent, Vector3(14, 4, 0.3), o + Vector3(0, 2, 5.4))
+	# mihrab niche + arch, minbar steps
+	box(parent, Vector3(1.8, 2.8, 0.2), o + Vector3(0, 1.4, -4.8), "1e7a4f")
+	mesh_at(parent, cyl_mesh(0.9, 0.9, 0.2, 12), "1e7a4f", o + Vector3(0, 2.8, -4.8)).rotation.x = PI / 2.0
+	box(parent, Vector3(1.3, 2.4, 0.22), o + Vector3(0, 1.2, -4.75), "0f5132")
+	for st in 3:
+		box(parent, Vector3(0.9, 0.3 * (st + 1), 0.7), o + Vector3(2.2 + st * 0.5, 0.15 * (st + 1), -4.4), "8a5a30", st == 0)
+	# windows, pillars, mushaf shelf, sandal rack by the door
+	for wx in [-5.0, -2.8, 2.8, 5.0]:
+		box(parent, Vector3(1.0, 1.6, 0.1), o + Vector3(wx, 2.2, -4.82), "8ec9ff")
+	for px in [-3.5, 3.5]:
+		for pz in [-1.5, 2.0]:
+			mesh_at(parent, cyl_mesh(0.25, 0.25, 4.0, 10), "fbf6ea", o + Vector3(px, 2.0, pz))
+			solid_cylinder(parent, 0.3, 4.0, o + Vector3(px, 0, pz))
+	box(parent, Vector3(0.5, 1.6, 2.2), o + Vector3(-6.6, 0.8, -2.0), "7a4b2a", true)
+	for r in 3:
+		box(parent, Vector3(0.45, 0.06, 2.0), o + Vector3(-6.5, 0.4 + r * 0.45, -2.0), "a8743f")
+		box(parent, Vector3(0.25, 0.3, 1.6), o + Vector3(-6.5, 0.6 + r * 0.45, -2.0), "1e7a4f")
+	box(parent, Vector3(1.6, 0.5, 0.5), o + Vector3(-2.6, 0.25, 4.5), "8a5a30", true)
+
 static func bounds(parent: Node3D) -> void:
 	var h := HALF
 	for spec in [
@@ -306,4 +338,5 @@ static func build_kampung(world: Node3D) -> void:
 		_map(trees[idx][0], trees[idx][1], 1.6, 1.6, "2f8a45", true)
 	_map(15, -15, 6.4, 6.4, "5aa9e6", true)
 	interior(world)
+	masjid_interior(world)
 	bounds(world)

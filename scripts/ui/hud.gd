@@ -179,14 +179,6 @@ func _ready() -> void:
 	gear.pressed.connect(toggle_settings)
 	tr.add_child(gear)
 
-	# Clock (top-center)
-	var cp := _panel(CREAM, WOOD, 16)
-	cp.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	cp.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	cp.position.y = 12
-	clock_label = _label("Hari 1 · Pagi 07:00", 15, DEEP)
-	cp.add_child(clock_label)
-	root.add_child(cp)
 
 	# Minimap (top-right, under the buttons) + place name
 	minimap = preload("res://scripts/ui/minimap.gd").new()
@@ -204,9 +196,15 @@ func _ready() -> void:
 	plp.offset_right = -12
 	plp.offset_top = 226
 	root.add_child(plp)
+	var plv := VBoxContainer.new()
+	plv.add_theme_constant_override("separation", 0)
+	plp.add_child(plv)
 	place_label = _label("Kampung Muslim", 13, Color("FFF4E1"))
 	place_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	plp.add_child(place_label)
+	plv.add_child(place_label)
+	clock_label = _label("Hari 1 · Pagi 07:00", 13, Color("F6B73C"))
+	clock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	plv.add_child(clock_label)
 
 	# Inventory hotbar (bottom-center)
 	var hp := _panel(Color("fffaf0"), WOOD, 12)
@@ -280,7 +278,7 @@ func _ready() -> void:
 	toast_panel = _panel(DEEP, SUN, 24)
 	toast_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	toast_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	toast_panel.position.y = 64
+	toast_panel.position.y = 14
 	toast_label = _label("", 16, Color.WHITE)
 	toast_panel.add_child(toast_label)
 	root.add_child(toast_panel)
@@ -348,7 +346,7 @@ func _ready() -> void:
 	settings_panel.visible = false
 
 	# Touch controls
-	if DisplayServer.is_touchscreen_available():
+	if is_touch():
 		var joy := preload("res://scripts/ui/virtual_joystick.gd").new()
 		joy.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 		joy.position = Vector2(24, -170)
@@ -381,6 +379,9 @@ func _unhandled_input(e: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 # ---------- public API ----------
+func is_touch() -> bool:
+	return DisplayServer.is_touchscreen_available() or OS.get_cmdline_user_args().has("--touch")
+
 func is_blocking() -> bool:
 	return _open or learn_panel.visible or settings_panel.visible or journal_panel.visible
 
@@ -420,7 +421,7 @@ func set_stickers(n: int) -> void:
 
 func set_prompt(text: String) -> void:
 	prompt_panel.visible = text != "" and not is_blocking()
-	prompt_label.text = ("E  " if not DisplayServer.is_touchscreen_available() else "") + text
+	prompt_label.text = ("E  " if not is_touch() else "") + text
 
 func toast(text: String) -> void:
 	toast_label.text = text

@@ -6,6 +6,7 @@ const QUEST_FILES := [
 	"res://data/quests/02_harvest_tomato.json",
 	"res://data/quests/03_learn_wudhu.json",
 	"res://data/quests/04_lost_wallet.json",
+	"res://data/quests/05_rukun_islam.json",
 ]
 const NPC_FILE := "res://data/world/npcs.json"
 const ITEM_FILE := "res://data/world/items.json"
@@ -51,6 +52,8 @@ var save_timer := 0.0
 var step_timer := 0.0
 
 func _ready() -> void:
+	get_window().size_changed.connect(_fit_ui)
+	_fit_ui()
 	_setup_environment()
 	var world := Node3D.new()
 	world.name = "World"
@@ -93,6 +96,12 @@ func _ready() -> void:
 	_apply_settings(GameData.state["settings"])
 	rig.snap()
 	_refresh_ui()
+
+## Keep UI readable on phones: portrait uses a 720x1280 base, landscape 1280x720.
+func _fit_ui() -> void:
+	var w := get_window()
+	var sz := w.size
+	w.content_scale_size = Vector2i(720, 1280) if sz.y > sz.x else Vector2i(1280, 720)
 
 func _setup_environment() -> void:
 	safari = _is_safari()
@@ -167,7 +176,13 @@ func _spawn_interactables(world: Node3D) -> void:
 			item.hide_until_available = s.get("hide_until_available", false)
 			item.position = Vector3(float(s["x"]), 0, float(s["z"]))
 			world.add_child(item)
-			if s.get("model", "tomato") == "wallet":
+			item.info_lines = s.get("info", [])
+			if s.get("model", "tomato") == "card":
+				var cb := BoxMesh.new()
+				cb.size = Vector3(0.5, 0.7, 0.06)
+				item.pickup = WorldBuilder.mesh_at(item, cb, "1e7a4f", Vector3(0, 0.75, 0))
+				WorldBuilder.box(item.pickup, Vector3(0.38, 0.56, 0.02), Vector3(0, 0, 0.035), "F6B73C")
+			elif s.get("model", "tomato") == "wallet":
 				var wb := BoxMesh.new()
 				wb.size = Vector3(0.36, 0.08, 0.26)
 				item.pickup = WorldBuilder.mesh_at(item, wb, "8a5a30", Vector3(0, 0.06, 0))
@@ -239,11 +254,23 @@ func _teleport(d: Dictionary) -> void:
 	player.velocity = Vector3.ZERO
 	rig.snap()
 	AudioManager.play("open")
-	place_name = "Rumah Ahmad" if player.position.x > VILLAGE_LIMIT else "Kampung Muslim"
+	place_name = area_of(player.position)
 	hud.toast(str(d.get("place", place_name)))
+	var enter_lines: Array = d.get("lines_on_enter", [])
+	if not enter_lines.is_empty():
+		hud.show_dialog(enter_lines, [], Callable())
 
 func in_village() -> bool:
 	return player.position.x < VILLAGE_LIMIT
+
+## Name of the area containing pos: "Kampung Muslim" or an interior from places.json.
+func area_of(pos: Vector3) -> String:
+	if pos.x < VILLAGE_LIMIT:
+		return "Kampung Muslim"
+	for a in places.get("areas", []):
+		if pos.x >= float(a["min"][0]) and pos.x <= float(a["max"][0]) and pos.z >= float(a["min"][1]) and pos.z <= float(a["max"][1]):
+			return str(a["name"])
+	return "Kampung Muslim"
 
 ## World position of the next target, or null.
 func target_position() -> Variant:
@@ -258,10 +285,27 @@ func target_position() -> Variant:
 		if not it.is_npc and engine.resolve(it.interact_id, "items").is_empty():
 			continue
 		var dd: float = it.global_position.distance_to(player.global_position)
+		if area_of(it.global_position) != area_of(player.global_position):
+			dd += 1000.0
 		if dd < best_d:
 			best_d = dd
 			best = it
-	return best.global_position if best != null else null
+	if best == null:
+		return null
+	var goal: Vector3 = best.global_position
+	var here := area_of(player.global_position)
+	var there := area_of(goal)
+	if here == there:
+		return goal
+	# Different building: guide to the door that leads toward the target.
+	for door in interactables:
+		if door.portal_to == null:
+			continue
+		var to: Dictionary = door.portal_to["to"]
+		var dest := area_of(Vector3(float(to["x"]), 0, float(to["z"])))
+		if area_of(door.global_position) == here and (dest == there or here != "Kampung Muslim"):
+			return door.global_position
+	return goal
 
 func _phase_name(h: float) -> String:
 	if h >= 4.0 and h < 10.0:
@@ -323,11 +367,11 @@ func _process(delta: float) -> void:
 	near = null if blocked else _find_near()
 	hud.set_prompt(near.prompt_label if near != null else "")
 	var village := in_village()
-	place_name = "Kampung Muslim" if village else "Rumah Ahmad"
+	place_name = area_of(player.position)
 	hud.set_place(place_name, village)
 	if not village:
 		env.background_color = Color("3b2a1c")
-	var tgt: Variant = target_position() if village else null
+	var tgt: Variant = target_position()
 	hud.minimap.update_state(player.position, player.model.rotation.y, tgt)
 	marker.visible = tgt != null and not blocked
 	if marker.visible:
@@ -398,7 +442,14 @@ func _interact(it) -> void:
 			AudioManager.play("open")
 			hud.show_dialog(idle, [], Callable())
 		return
-	_run_node(r["node"], r["quest"], it.instance_key)
+	var node: Dictionary = r["node"]
+	if not it.is_npc and not it.info_lines.is_empty() and node.get("lines", []).is_empty():
+		var q: Dictionary = r["quest"]
+		var key: String = it.instance_key
+		AudioManager.play("open")
+		hud.show_dialog(it.info_lines, [], func(_i: int): engine.apply(node, q, key))
+		return
+	_run_node(node, r["quest"], it.instance_key)
 
 func _format_lines(lines: Array, q: Dictionary) -> Array:
 	var out: Array = []

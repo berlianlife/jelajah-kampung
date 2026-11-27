@@ -131,6 +131,24 @@
           "text": "Hap! Bolanya ke sini, Ahmad! Gantian, ya."
         }
       ]
+    },
+    {
+      "id": "imam",
+      "name": "Pak Imam Yusuf",
+      "prompt": "Bicara dengan Pak Imam",
+      "x": 101.8,
+      "z": 27.6,
+      "look": {
+        "robe": "f3f0e6",
+        "pants": "f3f0e6",
+        "cap": "ffffff"
+      },
+      "idle": [
+        {
+          "who": "Pak Imam Yusuf",
+          "text": "Assalamu'alaikum, Ahmad. Di masjid kita menjaga ketenangan, ya."
+        }
+      ]
     }
   ]
 }

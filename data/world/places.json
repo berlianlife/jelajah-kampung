@@ -22,6 +22,34 @@
         "z": 0.4
       },
       "place": "Kampung Muslim"
+    },
+    {
+      "id": "door_masjid",
+      "prompt": "Masuk masjid",
+      "x": 0.0,
+      "z": -9.4,
+      "to": {
+        "x": 100.0,
+        "z": 33.6
+      },
+      "place": "Masjid",
+      "lines_on_enter": [
+        {
+          "who": "Ahmad",
+          "text": "Bismillah. Melepas sandal, lalu masuk dengan kaki kanan."
+        }
+      ]
+    },
+    {
+      "id": "door_masjid_out",
+      "prompt": "Keluar masjid",
+      "x": 100.0,
+      "z": 34.4,
+      "to": {
+        "x": 0.0,
+        "z": -8.4
+      },
+      "place": "Kampung Muslim"
     }
   ],
   "props": [
@@ -60,6 +88,42 @@
           "text": "Ini mushaf yang biasa kubaca bersama Ayah setiap selesai Maghrib."
         }
       ]
+    },
+    {
+      "id": "mihrab",
+      "prompt": "Lihat mihrab",
+      "x": 100.0,
+      "z": 26.4,
+      "lines": [
+        {
+          "who": "Ahmad",
+          "text": "Ini mihrab, tempat imam berdiri memimpin shalat berjamaah."
+        }
+      ]
+    },
+    {
+      "id": "mushaf_rack",
+      "prompt": "Lihat rak mushaf",
+      "x": 93.7,
+      "z": 28.0,
+      "lines": [
+        {
+          "who": "Ahmad",
+          "text": "Rak mushaf. Setelah membaca, mushaf dikembalikan dengan rapi ke tempatnya."
+        }
+      ]
+    },
+    {
+      "id": "sandal_rack",
+      "prompt": "Lihat rak sandal",
+      "x": 97.4,
+      "z": 33.7,
+      "lines": [
+        {
+          "who": "Ahmad",
+          "text": "Sandal disusun rapi di rak supaya tidak menghalangi jalan jamaah."
+        }
+      ]
     }
   ],
   "spots": [
@@ -68,6 +132,30 @@
       "prompt": "Gunakan tempat wudhu",
       "x": -4.3,
       "z": -7.6
+    }
+  ],
+  "areas": [
+    {
+      "name": "Rumah Ahmad",
+      "min": [
+        94,
+        -5
+      ],
+      "max": [
+        106,
+        5
+      ]
+    },
+    {
+      "name": "Masjid",
+      "min": [
+        92,
+        24
+      ],
+      "max": [
+        108,
+        36
+      ]
     }
   ]
 }
